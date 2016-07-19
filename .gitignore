@@ -1,0 +1,30 @@
+/ecs-beta-cloud/parsecs22/references/ECS 1.2 v1.03 Master.xlsm
+target
+bin
+*.class
+# Package Files #
+*.jar
+*.war
+*.ear
+# Local files
+.DS_Store
+/ecs-beta-cloud/packages/imdiskinst.exe
+.classpath
+.project
+.settings
+.idea
+*.iml
+*.ipr
+*.iws
+dependency-reduced-pom.xml
+esu.log
+.gradle
+*.user
+*.csuser
+Debug/
+Release/
+packages/
+.vs/
+*.bak
+id_rsa
+vipr-2.0-all.license.txt
