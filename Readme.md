@@ -1,4 +1,4 @@
-Repository of common build elements for public ECS projects
+EMC NFS Java Client
 ===
 
 Description
