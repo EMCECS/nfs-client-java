@@ -79,7 +79,7 @@ public class LoadTest {
 
     private static void testThreadedReadingPerformance(final Nfs3 nfs3, final String fileName, final int fileLength, final int numberOfThreadsToUse, int megaBytesToRead)
             throws Exception {
-        ThreadCounter threadCounter = new ThreadCounter();;
+        final ThreadCounter threadCounter = new ThreadCounter();
         Future<?>[] futures = new Future<?>[numberOfThreadsToUse];
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreadsToUse);
         long timeInMillis = Calendar.getInstance().getTimeInMillis();
