@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Assume;
 
@@ -71,7 +72,9 @@ public class NfsTestBase extends Assert {
     protected NfsTestBase() throws IOException {
         _properties = loadProperties();
         _server = getProperty(NFS_SERVER);
+        Assume.assumeTrue(StringUtils.isNotBlank(_server));
         _exportedPath = getProperty(NFS_EXPORT);
+        Assume.assumeTrue(StringUtils.isNotBlank(_exportedPath));
     }
 
     /**
