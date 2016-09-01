@@ -16,7 +16,6 @@ package com.emc.ecs.nfsclient;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -72,9 +71,7 @@ public class NfsTestBase extends Assert {
     protected NfsTestBase() throws IOException {
         _properties = loadProperties();
         _server = getProperty(NFS_SERVER);
-        Assume.assumeTrue(StringUtils.isNotBlank(_server));
         _exportedPath = getProperty(NFS_EXPORT);
-        Assume.assumeTrue(StringUtils.isNotBlank(_exportedPath));
     }
 
     /**
@@ -89,6 +86,7 @@ public class NfsTestBase extends Assert {
      * @return The server to use for testing.
      */
     protected final String getServer() {
+        Assume.assumeTrue(StringUtils.isNotBlank(_server));
         return _server;
     }
 
@@ -96,6 +94,7 @@ public class NfsTestBase extends Assert {
      * @return The exported path to use for testing.
      */
     protected final String getExportedPath() {
+        Assume.assumeTrue(StringUtils.isNotBlank(_exportedPath));
         return _exportedPath;
     }
 
@@ -103,7 +102,7 @@ public class NfsTestBase extends Assert {
      * @return The absolute path to use for testing.
      */
     protected final String getAbsolutePath() {
-        return _server + ":" + _exportedPath;
+        return getServer() + ":" + getExportedPath();
     }
 
     /**

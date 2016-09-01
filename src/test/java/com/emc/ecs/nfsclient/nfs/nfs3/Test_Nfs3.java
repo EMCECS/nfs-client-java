@@ -19,7 +19,6 @@ import java.io.IOException;
 import org.junit.Test;
 
 import com.emc.ecs.nfsclient.NfsTestBase;
-import com.emc.ecs.nfsclient.nfs.Nfs;
 import com.emc.ecs.nfsclient.rpc.CredentialUnix;
 
 /**
