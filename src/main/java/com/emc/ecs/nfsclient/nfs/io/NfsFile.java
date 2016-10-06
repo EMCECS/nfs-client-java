@@ -209,6 +209,12 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
     boolean exists() throws IOException;
 
     /**
+     * @return The backing file obtained by following all symbolic links in the path, if any.
+     * @throws IOException
+     */
+    F followLinks() throws IOException;
+
+    /**
      * @return The fully qualified path to the file in this network, including
      *         the server name and the exported folders, using the usual form:
      *         <code>server:exported_folders/path_from_exported_filesystem_root</code>
@@ -288,8 +294,9 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
     /**
      * @param childName
      * @return The child file.
+     * @throws IOException 
      */
-    F getChildFile(String childName);
+    F getChildFile(String childName) throws IOException;
 
     /**
      * @return The number of unallocated bytes in the partition named by this
@@ -373,6 +380,12 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
     boolean isFile() throws IOException;
 
     /**
+     * @return true if it is the root file of the mount, false if it isn't
+     * @throws IOException
+     */
+    boolean isRootFile() throws IOException;
+
+    /**
      * @return time of last modification
      * @throws IOException
      */
@@ -431,6 +444,8 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
      * @throws IOException
      */
     void mkdirs() throws IOException;
+
+    F newChildFile(String childName) throws IOException;
 
     /**
      * Renames the file denoted by this abstract pathname.

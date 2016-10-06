@@ -260,8 +260,9 @@ public interface Nfs<F extends NfsFile<?, ?>> {
      * @param path
      *            The file's path from the mount point.
      * @return the nfs file object
+     * @throws IOException 
      */
-    F newFile(String path);
+    F newFile(String path) throws IOException;
 
     // RFC 1813 implementation
 

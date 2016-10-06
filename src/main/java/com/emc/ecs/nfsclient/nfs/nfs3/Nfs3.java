@@ -459,7 +459,7 @@ public class Nfs3 implements Nfs<Nfs3File> {
     /* (non-Javadoc)
      * @see com.emc.ecs.nfsclient.nfs.Nfs#newFile(java.lang.String)
      */
-    public Nfs3File newFile(String path) {
+    public Nfs3File newFile(String path) throws IOException {
         return new Nfs3File(this, path);
     }
 

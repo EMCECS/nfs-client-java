@@ -14,6 +14,8 @@
  */
 package com.emc.ecs.nfsclient.nfs.io;
 
+import java.io.IOException;
+
 import com.emc.ecs.nfsclient.nfs.nfs3.Nfs3;
 
 /**
@@ -31,8 +33,9 @@ public class Nfs3File extends NfsFileBase<Nfs3, Nfs3File> {
      *            The supporting NFS client.
      * @param path
      *            The full path of the file, starting with the mount point.
+     * @throws IOException 
      */
-    public Nfs3File(Nfs3 nfs, String path) {
+    public Nfs3File(Nfs3 nfs, String path) throws IOException {
         super(nfs, path);
     }
 
@@ -43,18 +46,28 @@ public class Nfs3File extends NfsFileBase<Nfs3, Nfs3File> {
      *            The parent file, stored to reduce lookup overhead
      * @param child
      *            The short name of the file, starting from the parent path.
+     * @throws IOException 
      */
-    public Nfs3File(Nfs3File parent, String child) {
+    public Nfs3File(Nfs3File parent, String child) throws IOException {
         super(parent, child);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.emc.ecs.nfsclient.nfs.NfsFileBase#newChildFile(java.lang.String)
+     * @see com.emc.ecs.nfsclient.nfs.NfsFile#newChildFile(java.lang.String)
      */
-    protected Nfs3File newChildFile(String childName) {
+    public Nfs3File newChildFile(String childName) throws IOException {
         return new Nfs3File(this, childName);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.emc.ecs.nfsclient.nfs.NfsFileBase#newFile(java.lang.String)
+     */
+    protected Nfs3File newFile(String path) throws IOException {
+        return new Nfs3File(getNfs(), path);
     }
 
 }
