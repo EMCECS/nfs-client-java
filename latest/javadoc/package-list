@@ -1,0 +1,7 @@
+com.emc.ecs.nfsclient.mount
+com.emc.ecs.nfsclient.network
+com.emc.ecs.nfsclient.nfs
+com.emc.ecs.nfsclient.nfs.io
+com.emc.ecs.nfsclient.nfs.nfs3
+com.emc.ecs.nfsclient.portmap
+com.emc.ecs.nfsclient.rpc
