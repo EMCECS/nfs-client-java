@@ -215,6 +215,13 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
     F followLinks() throws IOException;
 
     /**
+     * @param linkTracker
+     * @return The backing file obtained by following all symbolic links in the path, if any.
+     * @throws IOException
+     */
+    F followLinks(LinkTracker<?> linkTracker) throws IOException;
+
+    /**
      * @return The fully qualified path to the file in this network, including
      *         the server name and the exported folders, using the usual form:
      *         <code>server:exported_folders/path_from_exported_filesystem_root</code>

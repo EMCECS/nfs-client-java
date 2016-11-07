@@ -18,9 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -86,16 +84,17 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
      *            The supporting NFS client.
      * @param path
      *            The full path of the file, starting with the mount point.
+     * @param linkTracker 
      * @throws IOException 
      */
-    public NfsFileBase(N nfs, String path) throws IOException {
+    public NfsFileBase(N nfs, String path, LinkTracker<F> linkTracker) throws IOException {
         if (nfs == null) {
             throw new IllegalArgumentException("Nfs instance can not be null");
         }
         _nfs = nfs;
         _parent = makeParentPath(path);
-        F parent = isRootPath(path) ? null : newFile(_parent);
-        setParentFileAndName(parent, makeName(path));
+        F parent = isRootPath(path) ? null : newFile(_parent, linkTracker);
+        setParentFileAndName(parent, makeName(path), linkTracker);
     }
 
     /**
@@ -109,7 +108,7 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
      */
     public NfsFileBase(F parentFile, String childName) throws IOException {
         _nfs = parentFile.getNfs();
-        setParentFileAndName(parentFile, childName);
+        setParentFileAndName(parentFile, childName, null);
     }
 
     /**
@@ -294,24 +293,29 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
      * @see com.emc.ecs.nfsclient.nfs.io.NfsFile#followLinks()
      */
     public F followLinks() throws IOException {
+        return followLinks(null);
+    }
+
+    public F followLinks(LinkTracker<?> linkTracker) throws IOException {
         if (_backingFile == null) {
             F backingFile = (F) this;
-            Set<String> pathsTried = new HashSet<String>();
-            int linksTraversed = 0;
             NfsGetAttributes attributes = safeGetAttributes(backingFile);
             while (NfsType.NFS_LNK == attributes.getType()) {
-                pathsTried.add(backingFile.getPath());
-                backingFile = followLink(backingFile.readlink().getData());
-                if (pathsTried.contains(backingFile.getPath())) {
-                    throw new IOException("Links form a loop: " + backingFile.getPath());
+                if (linkTracker == null) {
+                    linkTracker = new LinkTracker<F>();
                 }
-                ++linksTraversed;
-                if (linksTraversed > 100) {
-                    throw new IllegalArgumentException("Too many links to follow (> 100).");
+                F newBackingFile = (F) linkTracker.addLink(backingFile.getPath());
+                if (newBackingFile != null) {
+                    backingFile = newBackingFile;
+                } else {
+                    backingFile = followLink(backingFile.readlink().getData(), (LinkTracker<F>) linkTracker);
                 }
                 attributes = safeGetAttributes(backingFile);
             }
             _backingFile = backingFile;
+            if (linkTracker != null) {
+                ((LinkTracker<F>) linkTracker).addResolvedPath(getPath(), _backingFile);
+            }
         }
 
         return _backingFile;
@@ -334,17 +338,18 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
 
     /**
      * @param target
+     * @param linkTracker
      * @return The file corresponding to that path
      */
-    private F followLink(String target) throws IOException {
+    private F followLink(String target, LinkTracker<F> linkTracker) throws IOException {
         if (StringUtils.isBlank(target)) {
             throw new IOException("blank link target");
         }
 
-        String path;
         if (!target.contains(separator)) {
             return getParentFile().newChildFile(target);
         } else {
+            String path;
             if (target.startsWith(NfsFile.separator)) {
                 if (!target.startsWith(getNfs().getExportedPath())) {
                     throw new IOException("unreachable link target: " + target);
@@ -362,7 +367,7 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
                     path = parentPath + separator + target;
                 }
             }
-            return newFile(path);
+            return newFile(path, linkTracker);
         }
     }
 
@@ -1218,34 +1223,36 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
      * @return the new nfs file
      * @throws IOException 
      */
-    protected abstract F newFile(String path) throws IOException;
+    protected final F newFile(String path) throws IOException {
+        return newFile(path, null);
+    }
+
+    /**
+     * @param path
+     * @param linkTracker
+     * @return
+     */
+    protected abstract F newFile(String path, LinkTracker<F> linkTracker) throws IOException;
 
     /**
      * @param parentFile
      * @param name
+     * @param linkTracker
      * @throws IOException 
      */
-    private void setParentFileAndName(F parentFile, String name) throws IOException {
+    private void setParentFileAndName(F parentFile, String name, LinkTracker<F> linkTracker) throws IOException {
         if (parentFile != null) {
-            parentFile = parentFile.followLinks();
-            if (StringUtils.isBlank(name)) {
+            parentFile = parentFile.followLinks(linkTracker);
+            if (StringUtils.isBlank(name) || ".".equals(name)) {
                 name = parentFile.getName();
-                if (StringUtils.isNotEmpty(name)) {
-                    parentFile = parentFile.getParentFile();
-                }
-            } else if (".".equals(name)) {
-                name = parentFile.getName();
-                if (StringUtils.isNotEmpty(name)) {
-                    parentFile = parentFile.getParentFile();
-                }
+                parentFile = parentFile.getParentFile();
             } else if ("..".equals(name)) {
-                name = parentFile.getName();
-                if (StringUtils.isNotEmpty(name)) {
-                    parentFile = parentFile.getParentFile();
+                parentFile = parentFile.getParentFile();
+                if (parentFile == null) {
+                    name = "";
+                } else {
                     name = parentFile.getName();
-                    if (StringUtils.isNotEmpty(name)) {
-                        parentFile = parentFile.getParentFile();
-                    }
+                    parentFile = parentFile.getParentFile();
                 }
             }
         }
@@ -1259,7 +1266,9 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
      * 
      */
     private void setPathFields() {
-        if (_parentFile != null) {
+        if (_parentFile == null) {
+            _parent = separator;
+        } else {
             _parent = _parentFile.getPath();
             if (!_parent.endsWith(separator)) {
                 _parent = _parent + separator;
