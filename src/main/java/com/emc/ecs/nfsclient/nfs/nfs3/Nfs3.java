@@ -361,7 +361,7 @@ public class Nfs3 implements Nfs<Nfs3File> {
             }
         }
 
-        // unmount it, so the server knows we aren't holding on to it
+        // unmount it, so the server knows we are not holding on to it
         UnmountRequest unmountRequest = new UnmountRequest(VERSION, _exportedPath, _credential);
         for (int i = 0; i < MOUNT_MAX_RETRIES; ++i) {
             try {
@@ -379,7 +379,7 @@ public class Nfs3 implements Nfs<Nfs3File> {
             }
         }
 
-        // If this gets here, the response can't be null.
+        // If this gets here, the response cannot be null.
         // log the security mode that NFS supports, though we just
         // support AUTH_UNIX now
         int[] authenticationFlavors = response.getAuthenticationFlavors();

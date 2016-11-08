@@ -106,7 +106,7 @@ public class NfsTestBase extends Assert {
     }
 
     /**
-     * Loads the default properties, throws an exception if they can't be
+     * Loads the default properties, throws an exception if they cannot be
      * loaded.
      * 
      * @return The properties.

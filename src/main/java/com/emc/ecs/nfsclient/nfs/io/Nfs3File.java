@@ -47,10 +47,12 @@ public class Nfs3File extends NfsFileBase<Nfs3, Nfs3File> {
      * @param path
      *            The full path of the file, starting with the mount point.
      * @param linkTracker
-     *            The tracker.
+     *            The tracker to use. This must be passed so that monitoring is
+     *            continued until the link resolves to a file that is not a
+     *            symbolic link.
      * @throws IOException
      */
-    public Nfs3File(Nfs3 nfs, String path, LinkTracker<Nfs3File> linkTracker) throws IOException {
+    public Nfs3File(Nfs3 nfs, String path, LinkTracker<Nfs3, Nfs3File> linkTracker) throws IOException {
         super(nfs, path, linkTracker);
     }
 
@@ -81,7 +83,7 @@ public class Nfs3File extends NfsFileBase<Nfs3, Nfs3File> {
      * 
      * @see com.emc.ecs.nfsclient.nfs.NfsFileBase#newFile(java.lang.String)
      */
-    protected Nfs3File newFile(String path, LinkTracker<Nfs3File> linkTracker) throws IOException {
+    protected Nfs3File newFile(String path, LinkTracker<Nfs3, Nfs3File> linkTracker) throws IOException {
         return new Nfs3File(getNfs(), path, linkTracker);
     }
 

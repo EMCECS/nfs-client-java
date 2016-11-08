@@ -23,10 +23,16 @@ import java.util.Set;
 import com.emc.ecs.nfsclient.nfs.Nfs;
 
 /**
+ * This class tracks the process of resolving a symbolic link all the way to a
+ * concrete file. It ensures that exceptions are thrown if the links form a
+ * loop, or if there are too many links in the chain. Link trackers must be
+ * passed so that monitoring is continued until the link resolves to a file that
+ * is not a symbolic link.
+ * 
  * @author seibed
  *
  */
-public class LinkTracker<F extends NfsFile<? extends Nfs<F>, F>> {
+public class LinkTracker<N extends Nfs<?>, F extends NfsFile<N, F>> {
 
     /**
      * Maximum size of a symlink chain to follow.
@@ -39,8 +45,24 @@ public class LinkTracker<F extends NfsFile<? extends Nfs<F>, F>> {
 
     private int linksTraversed = 0;
 
-    public LinkTracker() {}
+    /**
+     * The only constructor.
+     */
+    public LinkTracker() {
+    }
 
+    /**
+     * Checks for problems. If the link has already been resolved, it returns
+     * the final file. If not, it adds the link path to the list of unresolved
+     * paths that have been seen while evaluating this chain.
+     * 
+     * @param path
+     *            The path to the link that is currently being resolved.
+     * @return The file, if that link has already been resolved.
+     * @throws IOException
+     *             If there are too many links in the chain (more than
+     *             MAXSYMLINKS)
+     */
     final F addLink(String path) throws IOException {
         if (++linksTraversed > MAXSYMLINKS) {
             throw new IllegalArgumentException("Too many links to follow (> " + MAXSYMLINKS + ").");
@@ -61,11 +83,18 @@ public class LinkTracker<F extends NfsFile<? extends Nfs<F>, F>> {
     }
 
     /**
+     * After each link is completely resolved, the linkTracker caller should
+     * call this method to store that resolved path so that it can be resolved
+     * directly the next time is is seen.
+     * 
      * @param path
+     *            The path to the original symbolic link.
      * @param file
+     *            The file to which that link was finally resolved.
      */
     public void addResolvedPath(String path, F file) {
         _resolvedPaths.put(path, file);
+        _unresolvedPaths.remove(path);
     }
 
 }

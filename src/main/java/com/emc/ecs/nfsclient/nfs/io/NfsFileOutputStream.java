@@ -69,7 +69,7 @@ public class NfsFileOutputStream extends OutputStream {
     private int _bufferOffset = 0;
 
     /**
-     * Flag to make sure operations aren't run after closing the stream.
+     * Flag to make sure operations are not run after closing the stream.
      */
     private boolean _closed = false;
 
@@ -147,7 +147,7 @@ public class NfsFileOutputStream extends OutputStream {
     public NfsFileOutputStream(NfsFile<?, ?> nfsFile, long offset, int syncType) throws IOException {
         // Validate the offset.
         if (offset < 0) {
-            throw new IllegalArgumentException("Can't start writing before offset 0: " + offset);
+            throw new IllegalArgumentException("Cannot start writing before offset 0: " + offset);
         }
 
         // Validate the syncType value.

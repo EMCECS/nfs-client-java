@@ -136,7 +136,7 @@ public abstract class NfsResponseBase extends RpcResponse {
      * 
      * @param xdr
      * @param force
-     *            don't check whether it's there
+     *            do not check whether it's there
      */
     protected void unmarshallingAttributes(Xdr xdr, boolean force) {
         _attributes = makeNfsGetAttributes(xdr, force);
@@ -167,7 +167,7 @@ public abstract class NfsResponseBase extends RpcResponse {
     }
 
     /**
-     * Create the object if it's there, return null if it isn't. Convenience
+     * Create the object if it's there, return null if it is not. Convenience
      * method for use in subclasses.
      * 
      * @param xdr
@@ -184,7 +184,7 @@ public abstract class NfsResponseBase extends RpcResponse {
      * 
      * @param xdr
      * @param force
-     *            don't check whether it's there
+     *            do not check whether it's there
      * @return the created object
      */
     protected static NfsGetAttributes makeNfsGetAttributes(Xdr xdr, boolean force) {

@@ -179,7 +179,7 @@ public class RecordMarkingUtil {
      * @param fragmentSize
      *            A long that contains either the int number of bytes in the
      *            fragment, or a special value if this is the last fragment.
-     * @return <code>true</code> if it is, <code>false</code> if it isn't.
+     * @return <code>true</code> if it is, <code>false</code> if it is not.
      */
     static boolean isLastFragment(long fragmentSize) {
         return ((fragmentSize & LAST_FRAG) != 0);

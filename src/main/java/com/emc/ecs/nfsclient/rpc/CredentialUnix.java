@@ -122,7 +122,7 @@ public class CredentialUnix extends CredentialBase {
     }
 
     /**
-     * @return The hostname, or "localhost" if it can't be determined.
+     * @return The hostname, or "localhost" if it cannot be determined.
      */
     private static String getHostname() {
         try {
@@ -131,7 +131,7 @@ public class CredentialUnix extends CredentialBase {
             // do nothing
         }
 
-        // the hostname doesn't affect the correctness of RPC call, so
+        // the hostname does not affect the correctness of RPC call, so
         // just return "localhost" if cannot get the host name
         return "localhost";
     }

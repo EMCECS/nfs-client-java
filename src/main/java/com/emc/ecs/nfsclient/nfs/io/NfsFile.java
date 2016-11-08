@@ -120,9 +120,9 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
      * Tests whether this client can delete an existing directory entry.
      * Specified by RFC 1813 (https://tools.ietf.org/html/rfc1813).
      *
-     * @return <code>true</code> if it can, <code>false</code> if it can't
+     * @return <code>true</code> if it can, <code>false</code> if it cannot
      * @throws IOException
-     *             if it doesn't exist or permissions can't be read.
+     *             if it does not exist or permissions cannot be read.
      */
     boolean canDelete() throws IOException;
 
@@ -130,9 +130,9 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
      * Tests whether this client can execute this file (no meaning for a
      * directory). Specified by RFC 1813 (https://tools.ietf.org/html/rfc1813).
      *
-     * @return <code>true</code> if it can, <code>false</code> if it can't
+     * @return <code>true</code> if it can, <code>false</code> if it cannot
      * @throws IOException
-     *             if it doesn't exist or permissions can't be read.
+     *             if it does not exist or permissions cannot be read.
      */
     boolean canExecute() throws IOException;
 
@@ -140,9 +140,9 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
      * Tests whether this client can write new data or add directory entries.
      * Specified by RFC 1813 (https://tools.ietf.org/html/rfc1813).
      *
-     * @return <code>true</code> if it can, <code>false</code> if it can't
+     * @return <code>true</code> if it can, <code>false</code> if it cannot
      * @throws IOException
-     *             if it doesn't exist or permissions can't be read.
+     *             if it does not exist or permissions cannot be read.
      */
     boolean canExtend() throws IOException;
 
@@ -151,9 +151,9 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
      * for non-directory objects). Specified by RFC 1813
      * (https://tools.ietf.org/html/rfc1813).
      *
-     * @return <code>true</code> if it can, <code>false</code> if it can't
+     * @return <code>true</code> if it can, <code>false</code> if it cannot
      * @throws IOException
-     *             if it doesn't exist or permissions can't be read.
+     *             if it does not exist or permissions cannot be read.
      */
     boolean canLookup() throws IOException;
 
@@ -162,9 +162,9 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
      * existing directory entries. Specified by RFC 1813
      * (https://tools.ietf.org/html/rfc1813).
      *
-     * @return <code>true</code> if it can, <code>false</code> if it can't
+     * @return <code>true</code> if it can, <code>false</code> if it cannot
      * @throws IOException
-     *             if it doesn't exist or permissions can't be read.
+     *             if it does not exist or permissions cannot be read.
      */
     boolean canModify() throws IOException;
 
@@ -172,9 +172,9 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
      * Tests whether this client can read data from file or read a directory.
      * Specified by RFC 1813 (https://tools.ietf.org/html/rfc1813).
      *
-     * @return <code>true</code> if it can, <code>false</code> if it can't
+     * @return <code>true</code> if it can, <code>false</code> if it cannot
      * @throws IOException
-     *             if it doesn't exist or permissions can't be read.
+     *             if it does not exist or permissions cannot be read.
      */
     boolean canRead() throws IOException;
 
@@ -209,17 +209,22 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
     boolean exists() throws IOException;
 
     /**
-     * @return The backing file obtained by following all symbolic links in the path, if any.
+     * @return The backing file obtained by following all symbolic links in the
+     *         path, if any.
      * @throws IOException
      */
     F followLinks() throws IOException;
 
     /**
      * @param linkTracker
-     * @return The backing file obtained by following all symbolic links in the path, if any.
+     *            The tracker to use. This must be passed so that monitoring is
+     *            continued until the link resolves to a file that is not a
+     *            symbolic link.
+     * @return The backing file obtained by following all symbolic links in the
+     *         path, if any.
      * @throws IOException
      */
-    F followLinks(LinkTracker<?> linkTracker) throws IOException;
+    F followLinks(LinkTracker<N, F> linkTracker) throws IOException;
 
     /**
      * @return The fully qualified path to the file in this network, including
@@ -287,7 +292,7 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
      *         </pre>
      * 
      * @throws IOException
-     *             if it doesn't exist or permissions can't be read.
+     *             if it does not exist or permissions cannot be read.
      */
     long getAccess(long accessToCheck) throws IOException;
 
@@ -301,7 +306,7 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
     /**
      * @param childName
      * @return The child file.
-     * @throws IOException 
+     * @throws IOException
      */
     F getChildFile(String childName) throws IOException;
 
@@ -375,19 +380,19 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
     long getUsableSpace() throws IOException;
 
     /**
-     * @return true if it is, false if it isn't
+     * @return true if it is, false if it is not
      * @throws IOException
      */
     boolean isDirectory() throws IOException;
 
     /**
-     * @return true if it is a normal file, false if it isn't
+     * @return true if it is a normal file, false if it is not
      * @throws IOException
      */
     boolean isFile() throws IOException;
 
     /**
-     * @return true if it is the root file of the mount, false if it isn't
+     * @return true if it is the root file of the mount, false if it is not
      * @throws IOException
      */
     boolean isRootFile() throws IOException;
@@ -399,70 +404,102 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
     long lastModified() throws IOException;
 
     /**
-     * @return the length
+     * @return the length in bytes, or 0 if the file does not exist or the
+     *         attributes cannot be read.
      */
     long length();
 
     /**
-     * @return the length
+     * @return the length in bytes
      * @throws IOException
+     *             if the file does not exist or the attributes cannot be read.
      */
     long lengthEx() throws IOException;
 
     /**
+     * Lists all files in this directory.
+     * 
      * @return the names of all files in the directory
      * @throws IOException
      */
     List<String> list() throws IOException;
 
     /**
+     * Lists all files matching the filter in this directory.
+     * 
      * @param filter
-     * @return the names of all files in the directory
+     * @return the names of all files matching the filter in the directory
      * @throws IOException
      */
     List<String> list(NfsFilenameFilter filter) throws IOException;
 
     /**
+     * Lists all files in this directory.
+     * 
      * @return NfsFile objects for all files in the directory
      * @throws IOException
      */
     List<F> listFiles() throws IOException;
 
     /**
+     * Lists all files matching the filter in this directory.
+     * 
      * @param filter
-     * @return NfsFile objects for all files in the directory
+     * @return NfsFile objects for all files matching the filter in the
+     *         directory
      * @throws IOException
      */
     List<F> listFiles(NfsFilenameFilter filter) throws IOException;
 
     /**
+     * Lists all files matching the filter in this directory.
+     * 
      * @param filter
-     * @return NfsFile objects for all files in the directory
+     * @return NfsFile objects for all files matching the filter in the
+     *         directory
      * @throws IOException
      */
     List<F> listFiles(NfsFileFilter filter) throws IOException;
 
     /**
+     * Creates the directory if it does not exist.
+     * 
      * @throws IOException
+     *             if the parent directories do not exist or it cannot be
+     *             created
      */
     void mkdir() throws IOException;
 
     /**
+     * Creates the directory and all parent directories if they do not already
+     * exist.
+     * 
      * @throws IOException
+     *             if it cannot create one of the directories.
      */
     void mkdirs() throws IOException;
 
+    /**
+     * Creates a new file with the current file as its parent directory. This
+     * does not create the file on the NFS mount.
+     * 
+     * @param childName
+     * @return the new file
+     * @throws IOException
+     */
     F newChildFile(String childName) throws IOException;
 
     /**
      * Renames the file denoted by this abstract pathname.
      * 
+     * <p>
      * Many aspects of the behavior of this method are inherently
      * platform-dependent: The rename operation might not be able to move a file
      * from one filesystem to another, it might not be atomic, and it might not
      * succeed if a file with the destination abstract pathname already exists.
      * The return value should always be checked to make sure that the rename
      * operation was successful.
+     * </p>
      * 
      * @param destination
      * @throws IOException
@@ -479,7 +516,21 @@ public interface NfsFile<N extends Nfs<?>, F extends NfsFile<N, F>> extends Comp
     public void setAttributes(NfsSetAttributes nfsSetAttributes) throws IOException;
 
     /**
+     * Sets the last-modified time of the file or directory named by this
+     * abstract pathname.
+     * 
+     * <p>
+     * All platforms support file-modification times to the nearest second, but
+     * some provide more precision. The argument will be truncated to fit the
+     * supported precision. If the operation succeeds and no intervening
+     * operations on the file take place, then the next invocation of the
+     * lastModified() method will return the (possibly truncated) time argument
+     * that was passed to this method.
+     * </p>
+     * 
      * @param millis
+     *            - The new last-modified time, measured in milliseconds since
+     *            the epoch (00:00:00 GMT, January 1, 1970)
      * @throws IOException
      */
     void setLastModified(long millis) throws IOException;

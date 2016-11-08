@@ -84,10 +84,13 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
      *            The supporting NFS client.
      * @param path
      *            The full path of the file, starting with the mount point.
-     * @param linkTracker 
-     * @throws IOException 
+     * @param linkTracker
+     *            The tracker to use. This must be passed so that monitoring is
+     *            continued until the link resolves to a file that is not a
+     *            symbolic link.
+     * @throws IOException
      */
-    public NfsFileBase(N nfs, String path, LinkTracker<F> linkTracker) throws IOException {
+    public NfsFileBase(N nfs, String path, LinkTracker<N, F> linkTracker) throws IOException {
         if (nfs == null) {
             throw new IllegalArgumentException("Nfs instance can not be null");
         }
@@ -104,7 +107,7 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
      *            The parent file, stored to reduce lookup overhead
      * @param childName
      *            The short name of the file, starting from the parent path.
-     * @throws IOException 
+     * @throws IOException
      */
     public NfsFileBase(F parentFile, String childName) throws IOException {
         _nfs = parentFile.getNfs();
@@ -289,32 +292,41 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
         return exists;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.emc.ecs.nfsclient.nfs.io.NfsFile#followLinks()
      */
     public F followLinks() throws IOException {
         return followLinks(null);
     }
 
-    public F followLinks(LinkTracker<?> linkTracker) throws IOException {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.emc.ecs.nfsclient.nfs.io.NfsFile#followLinks(com.emc.ecs.nfsclient.
+     * nfs.io.LinkTracker)
+     */
+    public F followLinks(LinkTracker<N, F> linkTracker) throws IOException {
         if (_backingFile == null) {
             F backingFile = (F) this;
             NfsGetAttributes attributes = safeGetAttributes(backingFile);
             while (NfsType.NFS_LNK == attributes.getType()) {
                 if (linkTracker == null) {
-                    linkTracker = new LinkTracker<F>();
+                    linkTracker = new LinkTracker<N, F>();
                 }
                 F newBackingFile = (F) linkTracker.addLink(backingFile.getPath());
                 if (newBackingFile != null) {
                     backingFile = newBackingFile;
                 } else {
-                    backingFile = followLink(backingFile.readlink().getData(), (LinkTracker<F>) linkTracker);
+                    backingFile = followLink(backingFile.readlink().getData(), linkTracker);
                 }
                 attributes = safeGetAttributes(backingFile);
             }
             _backingFile = backingFile;
             if (linkTracker != null) {
-                ((LinkTracker<F>) linkTracker).addResolvedPath(getPath(), _backingFile);
+                linkTracker.addResolvedPath(getPath(), _backingFile);
             }
         }
 
@@ -322,13 +334,14 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
     }
 
     /**
-     * @param backingFile
-     * @return
+     * @param file
+     *            The file for which the attributes are wanted.
+     * @return The attributes, or empty attributes if they cannot be read.
      */
-    private NfsGetAttributes safeGetAttributes(F backingFile) {
-        if (backingFile != null) {
+    private NfsGetAttributes safeGetAttributes(F file) {
+        if (file != null) {
             try {
-                return backingFile.getAttributes();
+                return file.getAttributes();
             } catch (Exception e) {
                 // do nothing, this is expected
             }
@@ -338,10 +351,16 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
 
     /**
      * @param target
+     *            The symbolic link data
      * @param linkTracker
-     * @return The file corresponding to that path
+     *            The tracker to use. This must be passed so that monitoring is
+     *            continued until the link resolves to a file that is not a
+     *            symbolic link.
+     * @return The file (which may itself be a link) corresponding to that path.
+     * @throws IOException
+     *             if the target is blank or not in the mount point.
      */
-    private F followLink(String target, LinkTracker<F> linkTracker) throws IOException {
+    private F followLink(String target, LinkTracker<N, F> linkTracker) throws IOException {
         if (StringUtils.isBlank(target)) {
             throw new IOException("blank link target");
         }
@@ -530,7 +549,9 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
         return getAttributes().getType() == NfsType.NFS_REG;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.emc.ecs.nfsclient.nfs.io.NfsFile#isRootFile()
      */
     public boolean isRootFile() throws IOException {
@@ -1191,7 +1212,7 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
      * @param childNames
      *            A list of child names.
      * @return The list of child files, one for each name.
-     * @throws IOException 
+     * @throws IOException
      */
     protected List<F> getChildFiles(List<String> childNames) throws IOException {
         if (childNames == null) {
@@ -1205,7 +1226,7 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
     }
 
     /**
-     * @return true if it is, false if it isn't
+     * @return true if it is, false if it is not
      */
     private final boolean isRootPath(String path) {
         return (path == null) || "".equals(path) || separator.equals(path);
@@ -1219,28 +1240,56 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
     }
 
     /**
+     * This creates a new file with arbitrary path.
+     * 
      * @param path
-     * @return the new nfs file
-     * @throws IOException 
+     *            the absolute path from the mount point.
+     * @return the new nfs file.
+     * @throws IOException
      */
     protected final F newFile(String path) throws IOException {
         return newFile(path, null);
     }
 
     /**
+     * This creates a new file with arbitrary path, using the given LinkTracker.
+     * 
      * @param path
+     *            the absolute path from the mount point.
      * @param linkTracker
-     * @return
+     *            The tracker to use. This must be passed so that monitoring is
+     *            continued until the link resolves to a file that is not a
+     *            symbolic link.
+     * @return A new file corresponding to the path, created using the
+     *         linkTracker
      */
-    protected abstract F newFile(String path, LinkTracker<F> linkTracker) throws IOException;
+    protected abstract F newFile(String path, LinkTracker<N, F> linkTracker) throws IOException;
 
     /**
+     * This method handles special cases, such as symbolic links in the parent
+     * directory, empty filenames, or the special names "." and "..". The
+     * algorithm required is simplified by the fact that special cases for the
+     * parent file are handled before this is called, as the path is always
+     * resolved from the bottom up. This means that the special cases have
+     * already been resolved for the parents and all supporting ancestors, so
+     * those possibilities need only be considered at the current level,
+     * eliminating any need for explicit recursive handling here.
+     * 
      * @param parentFile
+     *            The original parent file. This may be changed for cases that
+     *            require special handling, e.g., symbolic links, ".", "..", and
+     *            empty names.
      * @param name
+     *            The original name. This may also be changed for cases that
+     *            require special handling.
      * @param linkTracker
-     * @throws IOException 
+     *            The tracker to use. This must be passed so that monitoring is
+     *            continued until the link resolves to a file that is not a
+     *            symbolic link.
+     * @throws IOException
+     *             if links can't be followed.
      */
-    private void setParentFileAndName(F parentFile, String name, LinkTracker<F> linkTracker) throws IOException {
+    private void setParentFileAndName(F parentFile, String name, LinkTracker<N, F> linkTracker) throws IOException {
         if (parentFile != null) {
             parentFile = parentFile.followLinks(linkTracker);
             if (StringUtils.isBlank(name) || ".".equals(name)) {
@@ -1282,7 +1331,8 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
             }
         }
         _isRootFile = (_parentFile == null);
-        String absolutePathBase = (_parentFile != null) ? _parentFile.getAbsolutePath() : (getNfs().getServer() + ":" + getNfs().getExportedPath());
+        String absolutePathBase = (_parentFile != null) ? _parentFile.getAbsolutePath()
+                : (getNfs().getServer() + ":" + getNfs().getExportedPath());
         if (!absolutePathBase.endsWith(separator)) {
             absolutePathBase = absolutePathBase + separator;
         }
@@ -1309,7 +1359,7 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
     /**
      * @param accessToCheck
      * @return <code>true</code> if the access is allowed, <code>false</code> if
-     *         it isn't
+     *         it is not
      * @throws IOException
      */
     private boolean canAccess(long accessToCheck) throws IOException {

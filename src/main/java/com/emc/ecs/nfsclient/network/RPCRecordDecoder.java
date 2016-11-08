@@ -20,7 +20,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
 
 /**
- * To receive the entire response. We don't actually decode the rpc packet here.
+ * To receive the entire response. We do not actually decode the rpc packet here.
  * Just get the size from the packet and then put them in internal buffer until all data arrive.
  * 
  * @author seibed

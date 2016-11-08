@@ -156,7 +156,7 @@ public class ClientIOHandler extends SimpleChannelHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Throwable cause = e.getCause();
 
-        // don't print exception if it is BindException.
+        // do not print exception if it is BindException.
         // we are trying to search available port below 1024. It is not good to
         // print a flood
         // of error logs during the searching.

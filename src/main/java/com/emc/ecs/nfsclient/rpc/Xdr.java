@@ -219,8 +219,8 @@ public class Xdr {
 
     /*
      * Note: we have no XDR routines for encoding/decoding unsigned longs. They
-     * exist in XDR but not in Java hence we can't represent them. Best just to
-     * use xdr_hyper() and hope the sign bit isn't used.
+     * exist in XDR but not in Java hence we cannot represent them. Best just to
+     * use xdr_hyper() and hope the sign bit is not used.
      */
 
     /**
