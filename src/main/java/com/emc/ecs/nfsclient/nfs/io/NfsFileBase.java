@@ -1287,7 +1287,7 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
      *            continued until the link resolves to a file that is not a
      *            symbolic link.
      * @throws IOException
-     *             if links can't be followed.
+     *             if links cannot be followed.
      */
     private void setParentFileAndName(F parentFile, String name, LinkTracker<N, F> linkTracker) throws IOException {
         if (parentFile != null) {
