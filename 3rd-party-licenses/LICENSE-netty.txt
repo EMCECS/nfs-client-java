@@ -1,9 +1,28 @@
 Library: netty
-Copyright 2008-2016 The Netty Project
+Source code: http://central.maven.org/maven2/org/jboss/netty/netty/3.2.8.Final/netty-3.2.8.Final-sources.jar
+The Netty Project - Copyright 2009 Red Hat, Inc
+Full copyright text:
+-----------------------------------------------------------------------------------------------------------------------
+The Netty Project - Copyright 2009 Red Hat, Inc, and is licensed under the
+Apache License version 2.0 as published by the Apache Software Foundation.
+
+A summary of the individual contributors is given below. Any omission should be
+sent to Trustin Lee <trustin@gmail.com>.
+
+SVN Login(s)            Name
+-------------------------------------------------------------------------------
+amit.bhayani@jboss.com  Amit Bhayani
+ataylor                 Andy Taylor
+beve                    Daniel Bevenius
+fredbregier             Frederic Bregier
+trustin                 Trustin Heuiseung Lee
+-------------------------------------------------------------------------------
+
+* JBoss is a registered trademark of Red Hat, Inc.
+-----------------------------------------------------------------------------------------------------------------------
 License: Apache 2.0
 Full License Text:
 -----------------------------------------------------------------------------------------------------------------------
-
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/

@@ -182,7 +182,7 @@ public class NfsWriteRequest extends NfsRequestBase {
      * @return
      *         <ul>
      *         <li><code>true</code> if data is synced</li>
-     *         <li><code>false</code> if it isn't.</li>
+     *         <li><code>false</code> if it is not.</li>
      *         </ul>
      */
     public boolean isSync() {

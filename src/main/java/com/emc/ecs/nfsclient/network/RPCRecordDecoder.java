@@ -20,7 +20,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
 
 /**
- * To receive the entire response. We don't actually decode the rpc packet here.
+ * To receive the entire response. We do not actually decode the rpc packet here.
  * Just get the size from the packet and then put them in internal buffer until all data arrive.
  * 
  * @author seibed
@@ -39,7 +39,7 @@ public class RPCRecordDecoder extends FrameDecoder {
     protected Object decode(ChannelHandlerContext channelHandlerContext, Channel channel, ChannelBuffer channelBuffer) throws Exception {
         // Wait until the length prefix is available.
         if (channelBuffer.readableBytes() < 4) {
-            // If null is returned, it means there's not enough data yet.
+            // If null is returned, it means there is not enough data yet.
             // FrameDecoder will call again when there is a sufficient amount of data available.
             return null;
         }

@@ -120,7 +120,7 @@ public abstract class NfsResponseBase extends RpcResponse {
     }
 
     /**
-     * Unmarshall the object if it's there. Convenience method for use in
+     * Unmarshall the object if it is there. Convenience method for use in
      * subclasses.
      * 
      * @param xdr
@@ -130,20 +130,20 @@ public abstract class NfsResponseBase extends RpcResponse {
     }
 
     /**
-     * Unmarshall the object if it's there, or skip the existence check if
+     * Unmarshall the object if it is there, or skip the existence check if
      * <code>force</code> is <code>true</code>. Convenience method for use in
      * subclasses.
      * 
      * @param xdr
      * @param force
-     *            don't check whether it's there
+     *            do not check whether it is there
      */
     protected void unmarshallingAttributes(Xdr xdr, boolean force) {
         _attributes = makeNfsGetAttributes(xdr, force);
     }
 
     /**
-     * Unmarshall the object if it's there. Convenience method for use in
+     * Unmarshall the object if it is there. Convenience method for use in
      * subclasses.
      * 
      * @param xdr
@@ -153,7 +153,7 @@ public abstract class NfsResponseBase extends RpcResponse {
     }
 
     /**
-     * Unmarshall the object if it's there, or skip the existence check if
+     * Unmarshall the object if it is there, or skip the existence check if
      * <code>force</code> is <code>true</code>. Convenience method for use in
      * subclasses.
      * 
@@ -167,7 +167,7 @@ public abstract class NfsResponseBase extends RpcResponse {
     }
 
     /**
-     * Create the object if it's there, return null if it isn't. Convenience
+     * Create the object if it is there, return null if it is not. Convenience
      * method for use in subclasses.
      * 
      * @param xdr
@@ -178,13 +178,13 @@ public abstract class NfsResponseBase extends RpcResponse {
     }
 
     /**
-     * Create the object if it's there, or skip the existence check if
+     * Create the object if it is there, or skip the existence check if
      * <code>force</code> is <code>true</code>. Convenience method for use in
      * subclasses.
      * 
      * @param xdr
      * @param force
-     *            don't check whether it's there
+     *            do not check whether it is there
      * @return the created object
      */
     protected static NfsGetAttributes makeNfsGetAttributes(Xdr xdr, boolean force) {

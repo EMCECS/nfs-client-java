@@ -94,12 +94,12 @@ public class NfsFileInputStream extends InputStream {
     public NfsFileInputStream(NfsFile<?, ?> nfsFile, long offset, int maximumBufferSize) throws IOException {
         // Validate the offset.
         if (offset < 0) {
-            throw new IllegalArgumentException("Can't start reading before offset 0: " + offset);
+            throw new IllegalArgumentException("Cannot start reading before offset 0: " + offset);
         }
 
         // Validate the maximum buffer size.
         if (maximumBufferSize <= 0) {
-            throw new IllegalArgumentException("Can't have a maximum buffer size <= 0: " + maximumBufferSize);
+            throw new IllegalArgumentException("Cannot have a maximum buffer size <= 0: " + maximumBufferSize);
         }
 
         // Validate the file.
@@ -140,7 +140,8 @@ public class NfsFileInputStream extends InputStream {
     /**
      * Creates a <code>NfsFileInputStream</code> by opening a connection to an
      * actual NFS file, starting to read at offset 0 and using the preferred
-     * buffer size as the maximums.
+     * buffer size as the maximums. This constructor will generally give you the
+     * best performance.
      * <p>
      * If the named file does not exist, is a directory rather than a regular
      * file, or for some other reason cannot be opened for reading then a

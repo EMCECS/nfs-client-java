@@ -356,4 +356,148 @@ public class Test_Nfs3File extends NfsTestBase {
         assertFalse(test2.exists());
     }
 
+    /**
+     * Link handling tests 
+     * @throws Exception
+     */
+    @Test
+    public void testLinkHandling() throws Exception {
+        Nfs3 nfs3 = new Nfs3(getAbsolutePath(), new CredentialUnix(0, 0, null), 3);
+        Nfs3File links = new Nfs3File(nfs3, "/testlinks");
+        assertFalse(links.exists());
+        links.mkdir();
+        assertTrue(links.exists());
+
+        Nfs3File target = links.newChildFile("testfile");
+        target.createNewFile();
+        assertTrue(target.exists());
+
+        Nfs3File target2dir = links.newChildFile("testdir");
+        target2dir.mkdir();
+        assertTrue(target2dir.exists());
+
+        Nfs3File target2 = target2dir.newChildFile("testfile");
+        target2.createNewFile();
+        assertTrue(target2.exists());
+
+        NfsSetAttributes attributes = new NfsSetAttributes();
+        Nfs3File good1 = links.newChildFile("good1");
+        good1.symlink("testfile", attributes);
+
+        Nfs3File good2 = links.newChildFile("good2");
+        good2.symlink("testdir/testfile", attributes);
+
+        Nfs3File good3 = links.newChildFile("good3");
+        good3.symlink("good1", attributes);
+
+        Nfs3File good4 = links.newChildFile("good4");
+        good4.symlink("good2", attributes);
+
+        Nfs3File good5 = links.newChildFile("good5");
+        good5.symlink("good5b", attributes);
+
+        Nfs3File good5b = links.newChildFile("good5b");
+        good5b.symlink("good1", attributes);
+
+        Nfs3File good6 = links.newChildFile("good6");
+        good6.symlink("../testlinks/testfile", attributes);
+
+        Nfs3File good7 = links.newChildFile("good7");
+        good7.symlink("nothing", attributes);
+
+        Nfs3File good8 = links.newChildFile("good8");
+        good8.symlink("./testdir/testfile", attributes);
+
+        Nfs3File good9 = links.newChildFile("good9");
+        good9.symlink("././testdir/testfile", attributes);
+
+        Nfs3File good10 = links.newChildFile("good10");
+        good10.symlink("testdir/../../testlinks/testfile", attributes);
+
+        Nfs3File good11 = links.newChildFile("good11");
+        good11.symlink("testdir//testfile", attributes);
+
+        Nfs3File good12 = links.newChildFile("good12");
+        good12.symlink("testdir///testfile", attributes);
+
+        Nfs3File bad1 = links.newChildFile("bad1");
+        bad1.symlink("bad1", attributes);
+
+        Nfs3File bad2 = links.newChildFile("bad2");
+        bad2.symlink("bad2b", attributes);
+
+        Nfs3File bad2b = links.newChildFile("bad2b");
+        bad2b.symlink("bad2", attributes);
+
+        // Test good links
+        testGoodLink(links, "good1", "/testlinks/testfile", true);
+        testGoodLink(links, "good2", "/testlinks/testdir/testfile", true);
+        testGoodLink(links, "good3", "/testlinks/testfile", true);
+        testGoodLink(links, "good4", "/testlinks/testdir/testfile", true);
+        testGoodLink(links, "good5", "/testlinks/testfile", true);
+        testGoodLink(links, "good6", "/testlinks/testfile", true);
+        testGoodLink(links, "good7", "/testlinks/nothing", false);
+        testGoodLink(links, "good8", "/testlinks/testdir/testfile", true);
+        testGoodLink(links, "good9", "/testlinks/testdir/testfile", true);
+        testGoodLink(links, "good10", "/testlinks/testfile", true);
+        testGoodLink(links, "good11", "/testlinks/testdir/testfile", true);
+        testGoodLink(links, "good12", "/testlinks/testdir/testfile", true);
+        // Test bad (looping) links
+        testBadLink(links, "bad1");
+        testBadLink(links, "bad2");
+
+        // clean up
+        target2.delete();
+        target2dir.rmdir();
+        target.delete();
+        good1.delete();
+        good2.delete();
+        good3.delete();
+        good4.delete();
+        good5.delete();
+        good5b.delete();
+        good6.delete();
+        good7.delete();
+        good8.delete();
+        good9.delete();
+        good10.delete();
+        good11.delete();
+        good12.delete();
+        bad1.delete();
+        bad2.delete();
+        bad2b.delete();
+        links.rmdir();
+        assertFalse(links.exists());
+    }
+
+    /**
+     * @param directory
+     * @param linkName
+     * @throws IOException 
+     */
+    private void testBadLink(Nfs3File directory, String linkName) throws IOException {
+        Nfs3File link = directory.newChildFile(linkName);
+        assertTrue(link.exists());
+        try {
+            link.followLinks();
+            fail("This should have thrown an exception.");
+        } catch (Exception e) {
+            // do nothing, this is expected.
+        }
+    }
+
+    /**
+     * @param directory 
+     * @param linkName
+     * @param expectedPath
+     * @param shouldExist 
+     * @throws IOException 
+     */
+    private void testGoodLink(Nfs3File directory, String linkName, String expectedPath, boolean shouldExist) throws IOException {
+        Nfs3File link = directory.newChildFile(linkName);
+        Nfs3File target = link.followLinks();
+        assertEquals(expectedPath, target.getPath());
+        assertEquals(shouldExist, target.exists());
+    }
+
 }

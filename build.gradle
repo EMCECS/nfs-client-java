@@ -20,7 +20,7 @@ ext.licenseName = 'Apache License, Version 2.0'
 ext.licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
 
 buildscript {
-    ext.commonBuildVersion = '1.5.1'
+    ext.commonBuildVersion = '1.6'
     ext.commonBuildDir = "https://raw.githubusercontent.com/EMCECS/ecs-common-build/v$commonBuildVersion"
     apply from: "$commonBuildDir/ecs-publish.buildscript.gradle", to: buildscript
 }
