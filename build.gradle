@@ -13,7 +13,6 @@
  * permissions and limitations under the License.
  */
 description = 'NFS Client for Java - provides read/write access to data on NFS servers. The current implementation supports only NFS version 3.'
-version = '1.0.0-rc1'
 
 ext.githubProjectName = 'nfs-client-java'
 ext.licenseName = 'Apache License, Version 2.0'
@@ -27,7 +26,6 @@ buildscript {
 
 allprojects {
     group = 'com.emc.ecs'
-    version = '1.0.0-rc1'
     apply from: "$commonBuildDir/ecs-publish.gradle"
 }
 
