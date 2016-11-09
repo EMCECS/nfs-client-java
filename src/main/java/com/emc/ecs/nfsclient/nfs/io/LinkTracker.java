@@ -63,7 +63,7 @@ public class LinkTracker<N extends Nfs<?>, F extends NfsFile<N, F>> {
      *             If there are too many links in the chain (more than
      *             MAXSYMLINKS)
      */
-    final F addLink(String path) throws IOException {
+    synchronized final F addLink(String path) throws IOException {
         if (++linksTraversed > MAXSYMLINKS) {
             throw new IllegalArgumentException("Too many links to follow (> " + MAXSYMLINKS + ").");
         }
@@ -92,7 +92,7 @@ public class LinkTracker<N extends Nfs<?>, F extends NfsFile<N, F>> {
      * @param file
      *            The file to which that link was finally resolved.
      */
-    public void addResolvedPath(String path, F file) {
+    synchronized void addResolvedPath(String path, F file) {
         _resolvedPaths.put(path, file);
         _unresolvedPaths.remove(path);
     }
