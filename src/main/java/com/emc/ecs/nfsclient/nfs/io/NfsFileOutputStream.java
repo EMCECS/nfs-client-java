@@ -25,12 +25,20 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The NFS equivalent of <code>java.io.FileOutputStream</code>.
  * 
  * @author seibed
  */
 public class NfsFileOutputStream extends OutputStream {
+
+    /**
+     * The usual logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(NfsFileOutputStream.class);
 
     private NfsFile<?, ?> _nfsFile;
 
@@ -188,7 +196,7 @@ public class NfsFileOutputStream extends OutputStream {
         try {
             flush();
         } catch (Throwable t) {
-            // do nothing, it's almost certainly already closed
+            LOG.debug(t.getMessage(), t);
         }
         _closed = true;
         super.close();

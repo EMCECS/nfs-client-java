@@ -369,9 +369,8 @@ public class Nfs3 implements Nfs<Nfs3File> {
         // support AUTH_UNIX now
         if (LOG.isDebugEnabled()) {
             int[] authenticationFlavors = response.getAuthenticationFlavors();
-            String msg = String.format("nfs server %s:%s support auth mode %s", _server, _exportedPath,
+            LOG.debug("nfs server {}:{} supports auth mode {}", _server, _exportedPath,
                     Arrays.toString(authenticationFlavors));
-            LOG.debug(msg);
         }
 
         return response.getRootFileHandle();

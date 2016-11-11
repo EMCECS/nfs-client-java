@@ -296,9 +296,9 @@ public class Connection {
 
         final ChannelFuture oldChannelFuture = _channelFuture;
 
-        String logPrefix = _usePrivilegedPort ? "usePrivilegedPort " : "";
         if (LOG.isDebugEnabled()) {
-            LOG.debug(logPrefix + "connecting to {}", getRemoteAddress());
+            String logPrefix = _usePrivilegedPort ? "usePrivilegedPort " : "";
+            LOG.debug(logPrefix + "{}connecting to {}", logPrefix, getRemoteAddress());
         }
         _state = State.CONNECTING;
 
