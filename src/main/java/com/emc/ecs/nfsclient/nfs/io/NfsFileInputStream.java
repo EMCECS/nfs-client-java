@@ -185,7 +185,6 @@ public class NfsFileInputStream extends InputStream {
      * @see java.io.InputStream#close()
      */
     public void close() throws IOException {
-        checkForClosed();
         _closed = true;
         super.close();
     }

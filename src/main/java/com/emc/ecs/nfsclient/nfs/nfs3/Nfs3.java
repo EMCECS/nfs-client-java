@@ -156,15 +156,6 @@ public class Nfs3 implements Nfs<Nfs3File> {
     private Credential _credential = new CredentialUnix();
 
     /**
-     * <ul><li>
-     * If <code>true</code>, include extra diagnostic and informational log entries.
-     * </li><li>
-     * If <code>false</code>, omit non-critical log entries.
-     * </li></ul>
-     */
-    private boolean _verbose = false;
-
-    /**
      * The helper instance used to wrap RPC calls.
      */
     private final RpcWrapper<NfsRequestBase, NfsResponseBase> _rpcWrapper;
@@ -261,7 +252,7 @@ public class Nfs3 implements Nfs<Nfs3File> {
         if (credential != null) {
             _credential = credential;
         }
-        _rpcWrapper = new RpcWrapper<NfsRequestBase, NfsResponseBase>(_server, _port, _retryWait, _maximumRetries, MAXIMUM_NFS_REQUEST_SIZE, NFS_TIMEOUT, _verbose);
+        _rpcWrapper = new RpcWrapper<NfsRequestBase, NfsResponseBase>(_server, _port, _retryWait, _maximumRetries, MAXIMUM_NFS_REQUEST_SIZE, NFS_TIMEOUT);
 
         if (rootFileHandle == null) {
             prepareRootFhAndNfsPort();
@@ -269,12 +260,6 @@ public class Nfs3 implements Nfs<Nfs3File> {
             _rootFileHandle = rootFileHandle.clone();
             _port = getNfsPortFromServer();
             _rpcWrapper.setPort(_port);
-        }
-
-        if (_verbose) {
-            LOG.info("nfs rpc verbose is enabled");
-        } else {
-            LOG.info("nfs rpc verbose is NOT enabled");
         }
     }
 
@@ -382,10 +367,11 @@ public class Nfs3 implements Nfs<Nfs3File> {
         // If this gets here, the response cannot be null.
         // log the security mode that NFS supports, though we just
         // support AUTH_UNIX now
-        int[] authenticationFlavors = response.getAuthenticationFlavors();
-        String msg = String.format("nfs server %s:%s support auth mode %s", _server, _exportedPath,
-                Arrays.toString(authenticationFlavors));
-        LOG.info(msg);
+        if (LOG.isDebugEnabled()) {
+            int[] authenticationFlavors = response.getAuthenticationFlavors();
+            LOG.debug("nfs server {}:{} supports auth mode {}", _server, _exportedPath,
+                    Arrays.toString(authenticationFlavors));
+        }
 
         return response.getRootFileHandle();
     }

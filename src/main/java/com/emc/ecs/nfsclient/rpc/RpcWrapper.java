@@ -73,15 +73,6 @@ public class RpcWrapper<S extends NfsRequestBase, T extends NfsResponseBase> {
     private final int _rpcTimeout;
 
     /**
-     * <ul>
-     * <li>If <code>true</code>, include extra diagnostic and informational log
-     * entries.</li>
-     * <li>If <code>false</code>, omit non-critical log entries.</li>
-     * </ul>
-     */
-    private final boolean _verbose;
-
-    /**
      * Discovered IP addresses for the remote server.
      */
     private String[] _ips;
@@ -100,22 +91,15 @@ public class RpcWrapper<S extends NfsRequestBase, T extends NfsResponseBase> {
      *            The maximum request size in bytes.
      * @param rpcTimeout
      *            The timeout in seconds.
-     * @param verbose
-     *            <ul>
-     *            <li>If <code>true</code>, include extra diagnostic and
-     *            informational log entries.</li>
-     *            <li>If <code>false</code>, omit non-critical log entries.</li>
-     *            </ul>
      */
     public RpcWrapper(String server, int port, int retryWait, int maximumRetries,
-            int maximumRequestSize, int rpcTimeout, boolean verbose) {
+            int maximumRequestSize, int rpcTimeout) {
         _server = server;
         _port = port;
         _retryWait = retryWait;
         _maximumRetries = maximumRetries;
         _maximumRequestSize = maximumRequestSize;
         _rpcTimeout = rpcTimeout;
-        _verbose = verbose;
     }
 
     /**
@@ -281,16 +265,12 @@ public class RpcWrapper<S extends NfsRequestBase, T extends NfsResponseBase> {
      */
     private void callRpcChecked(S request, RpcResponseHandler<? extends T> responseHandler, String ipAddress)
             throws IOException {
-        if (_verbose) {
-            LOG.info("server: %s port: %s %s", new Object[] { _server, _port, request.toString() });
-        }
+        LOG.debug("server {}, port {}, request {}", _server, _port, request);
 
         callRpcNaked(request, responseHandler.getNewResponse(), ipAddress);
 
-        if (_verbose) {
-            String msg = String.format("server: %s port: %s %s", _server, _port,
-                    responseHandler.getResponse().toString());
-            LOG.info(msg);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("server {}, port {}, response {}", _server, _port, responseHandler.getResponse());
         }
 
         responseHandler.checkResponse(request);
@@ -320,7 +300,7 @@ public class RpcWrapper<S extends NfsRequestBase, T extends NfsResponseBase> {
                     // restore the interrupt status
                     Thread.currentThread().interrupt();
                 }
-                LOG.info("network error happens, server {}, attemptNumber {}", new Object[] { _server, attemptNumber });
+                LOG.warn("network error happens, server {}, attemptNumber {}", new Object[] { _server, attemptNumber });
                 return;
             }
 
@@ -343,12 +323,14 @@ public class RpcWrapper<S extends NfsRequestBase, T extends NfsResponseBase> {
             ips.add(sa.getAddress().getHostAddress());
         }
 
-        StringBuffer sb = new StringBuffer();
-        for (String ip : ips) {
-            sb.append(ip);
-            sb.append(" ");
+        if (LOG.isDebugEnabled()) {
+            StringBuffer sb = new StringBuffer();
+            for (String ip : ips) {
+                sb.append(ip);
+                sb.append(" ");
+            }
+            LOG.debug(sb.toString());
         }
-        LOG.info(sb.toString());
 
         return (String[]) ips.toArray(new String[0]);
     }

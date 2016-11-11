@@ -81,7 +81,9 @@ public class ClientIOHandler extends SimpleChannelHandler {
      * org.jboss.netty.channel.ChannelStateEvent)
      */
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        LOG.info("Connected to: {}", getRemoteAddress());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Connected to: {}", getRemoteAddress());
+        }
     }
 
     /*
