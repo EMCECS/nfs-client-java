@@ -265,14 +265,12 @@ public class RpcWrapper<S extends NfsRequestBase, T extends NfsResponseBase> {
      */
     private void callRpcChecked(S request, RpcResponseHandler<? extends T> responseHandler, String ipAddress)
             throws IOException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("server {}, port {}, request {}", _server, Integer.toString(_port), request.toString());
-        }
+        LOG.debug("server {}, port {}, request {}", _server, _port, request);
 
         callRpcNaked(request, responseHandler.getNewResponse(), ipAddress);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("server {}, port {}, response {}", _server, Integer.toString(_port), responseHandler.getResponse().toString());
+            LOG.debug("server {}, port {}, response {}", _server, _port, responseHandler.getResponse());
         }
 
         responseHandler.checkResponse(request);
