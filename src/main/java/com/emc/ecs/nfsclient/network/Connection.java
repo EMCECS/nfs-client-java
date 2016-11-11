@@ -298,7 +298,7 @@ public class Connection {
 
         if (LOG.isDebugEnabled()) {
             String logPrefix = _usePrivilegedPort ? "usePrivilegedPort " : "";
-            LOG.debug(logPrefix + "{}connecting to {}", logPrefix, getRemoteAddress());
+            LOG.debug("{}connecting to {}", logPrefix, getRemoteAddress());
         }
         _state = State.CONNECTING;
 
