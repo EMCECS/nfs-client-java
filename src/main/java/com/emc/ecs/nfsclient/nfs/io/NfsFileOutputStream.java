@@ -193,13 +193,15 @@ public class NfsFileOutputStream extends OutputStream {
      * @see java.io.OutputStream#close()
      */
     public void close() throws IOException {
-        try {
-            flush();
-        } catch (Throwable t) {
-            LOG.debug(t.getMessage(), t);
+        if (!_closed) {
+            try {
+                flush();
+            } catch (Throwable t) {
+                LOG.debug(t.getMessage(), t);
+            }
+            _closed = true;
+            super.close();
         }
-        _closed = true;
-        super.close();
     }
 
     /*
