@@ -185,7 +185,11 @@ public class NfsFileOutputStream extends OutputStream {
      * @see java.io.OutputStream#close()
      */
     public void close() throws IOException {
-        flush();
+        try {
+            flush();
+        } catch (Throwable t) {
+            // do nothing, it's almost certainly already closed
+        }
         _closed = true;
         super.close();
     }

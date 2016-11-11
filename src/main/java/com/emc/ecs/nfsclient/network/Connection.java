@@ -270,7 +270,7 @@ public class Connection {
 
         if (timeoutFuture.isSuccess() == false) {
 
-            LOG.info("cause:", timeoutFuture.getCause());
+            LOG.warn("cause:", timeoutFuture.getCause());
 
             if (timeoutFuture.isDone()) {
                 String msg = String.format("tcp IO error on the connection: %s", getRemoteAddress());
@@ -297,7 +297,9 @@ public class Connection {
         final ChannelFuture oldChannelFuture = _channelFuture;
 
         String logPrefix = _usePrivilegedPort ? "usePrivilegedPort " : "";
-        LOG.info(logPrefix + "connecting to {}", getRemoteAddress());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(logPrefix + "connecting to {}", getRemoteAddress());
+        }
         _state = State.CONNECTING;
 
         if (_usePrivilegedPort) {
