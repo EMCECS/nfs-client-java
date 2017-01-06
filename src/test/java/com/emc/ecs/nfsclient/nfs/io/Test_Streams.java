@@ -127,9 +127,8 @@ public class Test_Streams extends NfsTestBase {
 
         try {
             outputStream.close();
-            fail("This should throw an IOException");
         } catch (IOException e) {
-            // Do nothing, this was expected.
+            fail("This should not throw an IOException");
         }
 
         try {
@@ -172,9 +171,8 @@ public class Test_Streams extends NfsTestBase {
 
         try {
             inputStream.close();
-            fail("This should throw an IOException");
         } catch (IOException e) {
-            // Do nothing, this was expected.
+            fail("This should not throw an IOException");
         }
 
         try {
