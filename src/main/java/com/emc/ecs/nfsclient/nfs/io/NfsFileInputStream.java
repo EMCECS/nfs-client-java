@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 EMC Corporation. All Rights Reserved.
+ * Copyright 2016-2017 EMC Corporation. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -218,7 +218,8 @@ public class NfsFileInputStream extends InputStream {
         if (bytesRead == EOF) {
             return EOF;
         } else {
-            return b[0];
+        //byte type in Java is from -128 to +127 and we are supposed to return 0-255
+            return b[0] & 0xFF;
         }
     }
 
