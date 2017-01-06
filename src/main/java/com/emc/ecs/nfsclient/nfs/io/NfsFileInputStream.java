@@ -218,7 +218,8 @@ public class NfsFileInputStream extends InputStream {
         if (bytesRead == EOF) {
             return EOF;
         } else {
-            return b[0];
+        //byte type in Java is from -128 to +127 and we are supposed to return 0-255
+            return b[0] & 0xFF;
         }
     }
 
