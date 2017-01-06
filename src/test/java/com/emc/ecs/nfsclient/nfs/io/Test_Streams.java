@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 EMC Corporation. All Rights Reserved.
+ * Copyright 2016-2017 EMC Corporation. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -47,19 +47,27 @@ public class Test_Streams extends NfsTestBase {
         assertTrue(test.exists());
         assertTrue(test.canModify());
         assertTrue(test.canRead());
-        byte[] expectedData = "some data".getBytes(RpcRequest.CHARSET);
+        byte[] expectedData = new byte[] { 1, 2, 3, 127, -1, -128, 0, 1, 32 };
         outputStream.write(expectedData);
         outputStream.close();
 
         NfsFileInputStream inputStream = new NfsFileInputStream(test);
-        byte[] buffer = new byte[1000];
         assertEquals(expectedData.length, inputStream.available());
         int bytesRead = (int) inputStream.skip(expectedData.length);
         assertEquals(0, inputStream.available());
         inputStream.close();
 
         inputStream = new NfsFileInputStream(test);
-        buffer = new byte[1000];
+        for (int i = 0; i < expectedData.length; ++i) {
+            int nextByte = inputStream.read();
+            assertNotEquals(NfsFileInputStream.EOF, nextByte);
+            assertEquals(expectedData[i], (byte) nextByte);
+        }
+        assertEquals(NfsFileInputStream.EOF, inputStream.read());
+        inputStream.close();
+
+        inputStream = new NfsFileInputStream(test);
+        byte[] buffer = new byte[1000];
         assertEquals(expectedData.length, inputStream.available());
         bytesRead = inputStream.read(buffer);
         assertEquals(0, inputStream.available());
