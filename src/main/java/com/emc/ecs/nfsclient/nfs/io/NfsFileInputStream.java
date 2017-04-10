@@ -166,6 +166,9 @@ public class NfsFileInputStream extends InputStream {
      */
     private byte[] makeBytes(int maximumBufferSize) throws IOException {
         int bufferSize = Math.min((int) Math.min(_file.length() - _offset, Integer.MAX_VALUE), maximumBufferSize);
+        if (bufferSize == 0) {
+            _isEof = true;
+        }
         return new byte[bufferSize];
     }
 
@@ -322,11 +325,15 @@ public class NfsFileInputStream extends InputStream {
     }
 
     /**
-     * If the buffer has no more bytes to be read, load more bytes.
+     * If the buffer has no more bytes to be read, and there are bytes available in the file, load more bytes.
      * 
      * @throws IOException
      */
     private void loadBytesAsNeeded() throws IOException {
+        if (available() >= 0) {
+            _isEof = true;
+        }
+
         while ((!_isEof) && (bytesLeftInBuffer() <= 0)) {
             _currentBufferPosition = 0;
             NfsReadResponse response = _file.read(_offset, _bytes.length, _bytes, _currentBufferPosition);
