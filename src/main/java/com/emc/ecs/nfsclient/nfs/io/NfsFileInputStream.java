@@ -330,7 +330,7 @@ public class NfsFileInputStream extends InputStream {
      * @throws IOException
      */
     private void loadBytesAsNeeded() throws IOException {
-        if (available() >= 0) {
+        if (available() <= 0) {
             _isEof = true;
         }
 

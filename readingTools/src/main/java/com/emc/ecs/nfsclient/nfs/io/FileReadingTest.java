@@ -1,7 +1,5 @@
 /**
- * Copyright 2017:q
- * :q
- *  EMC Corporation. All Rights Reserved.
+ * Copyright 2017 EMC Corporation. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
