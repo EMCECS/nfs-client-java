@@ -119,4 +119,15 @@ public class NfsReadResponse extends NfsResponseBase {
         return (_bytes == null) ? null : _bytes.clone();
     }
 
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("read-response");
+        sb.append(" bytes-read:");
+        sb.append(String.valueOf(_bytesRead));
+        sb.append(" eof:");
+        sb.append(String.valueOf(_eof));
+        sb.append(" [").append(super.toString()).append("]");
+        return sb.toString();
+    }
 }
