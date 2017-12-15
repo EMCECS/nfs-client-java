@@ -87,7 +87,7 @@ public class NfsMknodRequest extends NfsRequestBase {
      */
     public NfsMknodRequest(byte[] fileHandle, String name, NfsType type, NfsSetAttributes attributes, long[] rdev,
             Credential credential, int nfsVersion) throws FileNotFoundException {
-        super(Nfs.RPC_PROGRAM, nfsVersion, Nfs.NFSPROC3_SYMLINK, credential, fileHandle);
+        super(Nfs.RPC_PROGRAM, nfsVersion, Nfs.NFSPROC3_MKNOD, credential, fileHandle);
         _name = trimFileName(name);
         _type = type;
         _attributes = attributes;
