@@ -471,6 +471,72 @@ public class Test_Nfs3File extends NfsTestBase {
     }
 
     /**
+     * Special file handling tests
+     * @throws Exception
+     */
+    @Test
+    public void testSpecialHandling() throws Exception {
+        Nfs3 nfs3 = new Nfs3(getAbsolutePath(), new CredentialUnix(0, 0, null), 3);
+        Nfs3File pipe = new Nfs3File(nfs3, "/testPipe");
+        assertFalse(pipe.exists());
+        try {
+            pipe.mknod(NfsType.NFS_FIFO, new NfsSetAttributes(), new long[] {0l, 0l});
+            assertTrue(pipe.exists());
+        }
+        finally {
+            try {
+                pipe.delete();
+            }
+            catch (Exception e) {
+                fail("Failed to delete pipe - " + e.getMessage());
+            }
+        }
+        assertFalse(pipe.exists());
+
+        Nfs3File chr = new Nfs3File(nfs3, "/testChar");
+        assertFalse(chr.exists());
+        long[] rDevSet = new long[] {1l, 2l};
+        try {
+            chr.mknod(NfsType.NFS_CHR, new NfsSetAttributes(), rDevSet);
+            assertTrue(chr.exists());
+            long[] rDevGet = chr.getAttributes().getRdev();
+            assertTrue(rDevGet.length == 2);
+            assertEquals(rDevSet[0], rDevGet[0]);
+            assertEquals(rDevSet[1], rDevGet[1]);
+        }
+        finally {
+            try {
+                chr.delete();
+            }
+            catch (Exception e) {
+                fail("Failed to delete character device - " + e.getMessage());
+            }
+        }
+        assertFalse(chr.exists());
+
+        rDevSet = new long[] {3l, 4l};
+        Nfs3File blk = new Nfs3File(nfs3, "/testBlock");
+        assertFalse(blk.exists());
+        try {
+            blk.mknod(NfsType.NFS_BLK, new NfsSetAttributes(), rDevSet);
+            assertTrue(blk.exists());
+            long[] rDevGet = blk.getAttributes().getRdev();
+            assertTrue(rDevGet.length == 2);
+            assertEquals(rDevSet[0], rDevGet[0]);
+            assertEquals(rDevSet[1], rDevGet[1]);
+        }
+        finally {
+            try {
+                blk.delete();
+            }
+            catch (Exception e) {
+                fail("Failed to delete block device - " + e.getMessage());
+            }
+        }
+        assertFalse(chr.exists()); 
+    }
+
+    /**
      * @param directory
      * @param linkName
      * @throws IOException 
