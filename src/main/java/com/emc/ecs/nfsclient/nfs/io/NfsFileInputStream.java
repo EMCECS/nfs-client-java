@@ -179,7 +179,7 @@ public class NfsFileInputStream extends InputStream {
      */
     public int available() throws IOException {
         checkForClosed();
-        return (int) (_file.length() - _offset + bytesLeftInBuffer());
+        return (int) Math.min(_file.length() - _offset + bytesLeftInBuffer(), Integer.MAX_VALUE);
     }
 
     /*
