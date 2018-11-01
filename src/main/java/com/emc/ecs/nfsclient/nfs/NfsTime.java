@@ -132,4 +132,17 @@ public class NfsTime implements NfsRequest, NfsResponse {
         return seconds * 1000 + nanoseconds / 1000000;
     }
 
+    /**
+     * @return the seconds value
+     */
+    public long getSeconds() {
+        return seconds;
+    }
+
+    /**
+     * @return the nanoseconds value
+     */
+    public long getNanoseconds() {
+        return nanoseconds;
+    }
 }
