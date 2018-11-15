@@ -27,7 +27,23 @@ to
 The test client will need read/write access to this share. If you do not
 do this, you can still build the client, but most of the JUnit tests will
 be skipped. 
+
+How to import into eclipse and IDEA
+---
   
+To import the code into eclipse or IDEA, you will need to create a `gradle.properties` file in the folder `~/.gradle`. This file will need to define the following values.
+
+    # path to Java 6 jre/lib (if installed)
+    #java6Lib=
+    java7Lib=/Library/Java/JavaVirtualMachines/jdk1.8.0_91.jdk/Contents/Home/jre/lib
+    # set these if you plan on publishing. note: you will be prompted for passwords if necessary
+    sonatypeUsername=
+    githubUsername=
+    gitUsername=
+    # Located on the signing server. KeyId can be found using gpg --list-keys
+    signingKeyId=
+    signingSecretKeyRingFile=
+
 How to use the bare client
 ---
 
