@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 EMC Corporation. All Rights Reserved.
+ * Copyright 2016-2018 EMC Corporation. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -73,15 +73,22 @@ public class Test_Nfs3 extends NfsTestBase {
         assertEquals(NfsStatus.NFS3_OK.getValue(), createRes.getState());
 
         try {
-            NfsTime ctime = createRes.getAttributes().getCtime();
+            NfsTime guardTime = new NfsTime( createRes.getAttributes().getCtime().getTimeInMillis(), false );
             Nfs3SetAttrResponse setAttrResponse = nfs3.setAttr(new NfsSetAttrRequest(createRes.getFileHandle(),
                     new NfsSetAttributes(null, null, null, new Long(1024), null, null),
-                    ctime,
+                    guardTime,
                     new CredentialUnix(), 3));
 
             assertEquals(NfsStatus.NFS3_OK.getValue(), setAttrResponse.getState());
-        }
-        finally {
+
+            guardTime = new NfsTime( 0, false );
+            setAttrResponse = nfs3.setAttr(new NfsSetAttrRequest(createRes.getFileHandle(),
+                    new NfsSetAttributes(null, null, null, new Long(1024), null, null),
+                    guardTime,
+                    new CredentialUnix(), 3));
+
+            assertEquals(NfsStatus.NFS3ERR_NOT_SYNC.getValue(), setAttrResponse.getState());
+        } finally {
             // Clean up file
             nfs3.sendRemove(new NfsRemoveRequest(rootHandle, TEST_FILE_NAME, new CredentialUnix(), 3));
         }
