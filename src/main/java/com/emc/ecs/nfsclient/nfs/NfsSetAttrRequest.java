@@ -80,7 +80,8 @@ public class NfsSetAttrRequest extends NfsRequestBase {
             xdr.putBoolean(false);
         } else {
             xdr.putBoolean(true);
-            _guardTime.marshalling(xdr);
+            xdr.putUnsignedInt(_guardTime.getSeconds());
+            xdr.putUnsignedInt(_guardTime.getNanoseconds());
         }
     }
 

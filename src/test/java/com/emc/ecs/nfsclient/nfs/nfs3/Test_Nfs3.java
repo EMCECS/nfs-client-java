@@ -19,6 +19,13 @@ import java.io.IOException;
 import org.junit.Test;
 
 import com.emc.ecs.nfsclient.NfsTestBase;
+import com.emc.ecs.nfsclient.nfs.NfsCreateMode;
+import com.emc.ecs.nfsclient.nfs.NfsCreateRequest;
+import com.emc.ecs.nfsclient.nfs.NfsRemoveRequest;
+import com.emc.ecs.nfsclient.nfs.NfsSetAttrRequest;
+import com.emc.ecs.nfsclient.nfs.NfsSetAttributes;
+import com.emc.ecs.nfsclient.nfs.NfsStatus;
+import com.emc.ecs.nfsclient.nfs.NfsTime;
 import com.emc.ecs.nfsclient.rpc.CredentialUnix;
 
 /**
@@ -26,6 +33,11 @@ import com.emc.ecs.nfsclient.rpc.CredentialUnix;
  *
  */
 public class Test_Nfs3 extends NfsTestBase {
+
+    /**
+     * Name of a test file to use in the export
+     */
+    private static final String TEST_FILE_NAME = "test";
 
     /**
      * @throws IOException
@@ -41,6 +53,38 @@ public class Test_Nfs3 extends NfsTestBase {
         byte[] output = nfs3.lookupRootHandle();
         assertNotNull(output);
         printFileHandle(output);
+    }
+
+    @Test
+    public void testSetAttrGuarded() throws Exception {
+        Nfs3 nfs3 = new Nfs3(getServer(), getExportedPath(), new CredentialUnix(), 3);
+
+        byte[] rootHandle = nfs3.lookupRootHandle();
+
+        Nfs3CreateResponse createRes = nfs3.sendCreate(
+                new NfsCreateRequest(NfsCreateMode.UNCHECKED,
+                        rootHandle,
+                        TEST_FILE_NAME,
+                        new NfsSetAttributes(),
+                        null,
+                        new CredentialUnix(),
+                        3));
+
+        assertEquals(NfsStatus.NFS3_OK.getValue(), createRes.getState());
+
+        try {
+            NfsTime ctime = createRes.getAttributes().getCtime();
+            Nfs3SetAttrResponse setAttrResponse = nfs3.setAttr(new NfsSetAttrRequest(createRes.getFileHandle(),
+                    new NfsSetAttributes(null, null, null, new Long(1024), null, null),
+                    ctime,
+                    new CredentialUnix(), 3));
+
+            assertEquals(NfsStatus.NFS3_OK.getValue(), setAttrResponse.getState());
+        }
+        finally {
+            // Clean up file
+            nfs3.sendRemove(new NfsRemoveRequest(rootHandle, TEST_FILE_NAME, new CredentialUnix(), 3));
+        }
     }
 
     /**
