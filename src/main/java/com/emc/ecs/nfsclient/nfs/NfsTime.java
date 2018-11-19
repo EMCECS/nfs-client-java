@@ -50,7 +50,7 @@ public class NfsTime implements NfsRequest, NfsResponse {
     /**
      * This usually indicates a guard time - attributes should be changed only
      * if the object's ctime matches the associated time, as specified by RFC
-     * 1813 (https://tools.ietf.org/html/rfc1813). The 
+     * 1813 (https://tools.ietf.org/html/rfc1813).
      */
     private static final int IS_BARE_TIME = -1;
 
@@ -138,7 +138,7 @@ public class NfsTime implements NfsRequest, NfsResponse {
      * @see com.emc.ecs.nfsclient.nfs.NfsRequest#marshalling(com.emc.ecs.nfsclient.rpc.Xdr)
      */
     public void marshalling(Xdr xdr) {
-        if ( IS_BARE_TIME != _timeSettingType ) {
+        if ( !isBareTime() ) {
             xdr.putInt(_timeSettingType);
         }
         if ( captureTime() ) {
@@ -166,8 +166,8 @@ public class NfsTime implements NfsRequest, NfsResponse {
      * @return true if the time in milliseconds will be used, false otherwise.
      */
     private boolean captureTime() {
-        return ( ( SET_TO_CLIENT_TIME == _timeSettingType )
-              || ( IS_BARE_TIME == _timeSettingType ) );
+        return ( isBareTime() 
+              || ( SET_TO_CLIENT_TIME == _timeSettingType ) );
     }
 
 }
