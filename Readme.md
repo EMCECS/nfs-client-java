@@ -17,6 +17,21 @@ The project also includes NFS equivalents to java.io.File and related
 functionality. The classes for this, both the generic and the
 NFS3-specific versions, are in the package com.emc.ecs.nfsclient.nfs.io.
 
+Installation
+---
+
+You can download the library as a Maven dependency from Maven Central Repository:
+
+    <dependency>
+        <groupId>com.emc.ecs</groupId>
+        <artifactId>nfs-client</artifactId>
+        <version>1.0.3</version>
+    </dependency>
+
+You can also use it as a Gradle dependency:
+
+    compile group: 'com.emc.ecs', name: 'nfs-client', version: '1.0.3'
+
 How to build the client
 ---
 
