@@ -117,6 +117,7 @@ public class LoadTest {
                         }
 
                     };
+                    thread.setDaemon(true);
                     futures[i] = executorService.submit(thread);
                 }
             }

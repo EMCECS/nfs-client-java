@@ -15,6 +15,11 @@
 package com.emc.ecs.nfsclient.nfs.io;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.emc.ecs.nfsclient.nfs.NfsReadResponse;
 import com.emc.ecs.nfsclient.nfs.nfs3.Nfs3;
@@ -26,20 +31,37 @@ import com.emc.ecs.nfsclient.rpc.CredentialUnix;
  */
 public class FileReadingTest {
 
+    private static final Set<String> USAGE_REQUESTS = new HashSet<String>();
+    static {
+        USAGE_REQUESTS.addAll(Arrays.asList(new String[] { "-h", "--help", "--usage" }));
+    }
+
     public static void main(String[] args) {
-        String export = args[0];
-        String fileName = args[1];
-        boolean useStream = Boolean.valueOf(args[2]);
-        try {
-            if (useStream) {
-                testStreamReading(export, fileName);
-            } else {
-                testReading(export, fileName);
+        String export = args.length < 2 ? null : args[0];
+        if (StringUtils.isEmpty(export) || USAGE_REQUESTS.contains(export)) {
+            usage();
+        } else {
+            String fileName = args[1];
+            boolean useStream = (args.length == 2) ? false : Boolean.valueOf(args[2]);
+            try {
+                if (useStream) {
+                    testStreamReading(export, fileName);
+                } else {
+                    testReading(export, fileName);
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
         }
+    }
+
+    /**
+     * 
+     */
+    private static void usage() {
+        System.out.println("usage: java -jar readingTest-X.jar <export> <fileName> [<test_stream_reading>]");
+        System.out.println("     The default is to test plain file reads.");
     }
 
     public static void testStreamReading(String export, String fileName)
@@ -60,7 +82,7 @@ public class FileReadingTest {
                 throw new Exception("Reading error - read " + bytesRead
                         + " bytes, should have been " + fileLength);
             }
-            System.out.println("Success!");
+            System.out.println("Successful read, end of file returned correctly!");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         } finally {
@@ -90,7 +112,7 @@ public class FileReadingTest {
                 throw new Exception("Reading error - read " + response.getBytesRead()
                         + " bytes, should have been " + fileLength);
             }
-            System.out.println("Success!");
+            System.out.println("Successful read, end of file returned correctly!");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
