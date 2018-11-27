@@ -1,4 +1,4 @@
-Copyright (c) 2016#if($today.year > 2016)-$today.year#end, EMC Corporation.
+Copyright 2016#if($today.year > 2016)-$today.year#end, Dell Inc. or its subsidiaries. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License").
 You may not use these files except in compliance with the License.
