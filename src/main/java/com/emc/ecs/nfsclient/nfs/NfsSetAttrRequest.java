@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 EMC Corporation. All Rights Reserved.
+ * Copyright 2016-2018 EMC Corporation. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -64,6 +64,9 @@ public class NfsSetAttrRequest extends NfsRequestBase {
             int nfsVersion) throws FileNotFoundException {
         super(Nfs.RPC_PROGRAM, nfsVersion, Nfs.NFSPROC3_SETATTR, credential, fileHandle);
         _attributes = attributes;
+        if ( ( guardTime != null ) && ( ! guardTime.isBareTime() ) ) {
+            throw new IllegalArgumentException("The guard time cannot be a time setting time");
+        }
         _guardTime = guardTime;
     }
 

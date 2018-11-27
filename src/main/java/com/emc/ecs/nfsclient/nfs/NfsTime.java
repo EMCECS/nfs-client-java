@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 EMC Corporation. All Rights Reserved.
+ * Copyright 2016-2018 EMC Corporation. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -48,6 +48,13 @@ public class NfsTime implements NfsRequest, NfsResponse {
     private static final int SET_TO_CLIENT_TIME = 2;
 
     /**
+     * This usually indicates a guard time - attributes should be changed only
+     * if the object's ctime matches the associated time, as specified by RFC
+     * 1813 (https://tools.ietf.org/html/rfc1813).
+     */
+    private static final int IS_BARE_TIME = -1;
+
+    /**
      * This constant is the NfsTime passed to setters to indicate that the time
      * should not be changed.
      */
@@ -71,24 +78,45 @@ public class NfsTime implements NfsRequest, NfsResponse {
     }
 
     /**
-     * Create a new NfsTime for the time corresponding to milliseconds.
+     * Create a new NfsTime for the setting time corresponding to milliseconds.
      * 
      * @param milliseconds
      *            same as for java.util.Date.
      */
     public NfsTime(long milliseconds) {
-        this(milliseconds, SET_TO_CLIENT_TIME);
+        this(milliseconds, true);
+    }
+
+    /**
+     * Create a new NfsTime for the setting or guard time corresponding to milliseconds.
+     * 
+     * @param milliseconds
+     *            same as for java.util.Date.
+     * @param isSettingTime
+     *            true if the time is to be used for setting a value,
+     *            false if not (e.g., guard time)
+     */
+    public NfsTime(long milliseconds, boolean isSettingTime) {
+        this(milliseconds, isSettingTime ? SET_TO_CLIENT_TIME : IS_BARE_TIME);
     }
 
     private NfsTime(long milliseconds, int timeSettingType) {
         _timeSettingType = timeSettingType;
-        if (SET_TO_CLIENT_TIME == timeSettingType) {
+        if ( captureTime() ) {
             seconds = milliseconds / 1000;
             nanoseconds = (milliseconds - seconds * 1000) * 1000000;
         } else {
             seconds = 0;
             nanoseconds = 0;
         }
+    }
+
+    /**
+     * @return true if this is a bare time (with no time setting type), false
+     * otherwise.
+     */
+    public boolean isBareTime() {
+        return IS_BARE_TIME == _timeSettingType;
     }
 
     /*
@@ -110,8 +138,10 @@ public class NfsTime implements NfsRequest, NfsResponse {
      * @see com.emc.ecs.nfsclient.nfs.NfsRequest#marshalling(com.emc.ecs.nfsclient.rpc.Xdr)
      */
     public void marshalling(Xdr xdr) {
-        xdr.putInt(_timeSettingType);
-        if (SET_TO_CLIENT_TIME == _timeSettingType) {
+        if ( !isBareTime() ) {
+            xdr.putInt(_timeSettingType);
+        }
+        if ( captureTime() ) {
             xdr.putUnsignedInt(seconds);
             xdr.putUnsignedInt(nanoseconds);
         }
@@ -130,6 +160,14 @@ public class NfsTime implements NfsRequest, NfsResponse {
      */
     public long getTimeInMillis() {
         return seconds * 1000 + nanoseconds / 1000000;
+    }
+
+    /**
+     * @return true if the time in milliseconds will be used, false otherwise.
+     */
+    private boolean captureTime() {
+        return ( isBareTime() 
+              || ( SET_TO_CLIENT_TIME == _timeSettingType ) );
     }
 
 }

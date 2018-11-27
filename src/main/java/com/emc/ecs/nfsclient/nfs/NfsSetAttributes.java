@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 EMC Corporation. All Rights Reserved.
+ * Copyright 2016-2018 EMC Corporation. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -132,6 +132,9 @@ public class NfsSetAttributes {
      *            the time when the file data was last accessed.
      */
     public void setAtime(NfsTime atime) {
+        if ( atime != null && atime.isBareTime() ) {
+            throw new IllegalArgumentException("The atime must be a time setting time");
+        }
         _atime = atime;
     }
 
@@ -140,6 +143,9 @@ public class NfsSetAttributes {
      *            the time when the file data was last modified.
      */
     public void setMtime(NfsTime mtime) {
+        if ( mtime != null && mtime.isBareTime() ) {
+            throw new IllegalArgumentException("The mtime must be a time setting time");
+        }
         _mtime = mtime;
     }
 
@@ -178,8 +184,8 @@ public class NfsSetAttributes {
         _uid = uid;
         _gid = gid;
         _size = size;
-        _atime = atime;
-        _mtime = mtime;
+        setAtime( atime );
+        setMtime( mtime );
     }
 
     /**
