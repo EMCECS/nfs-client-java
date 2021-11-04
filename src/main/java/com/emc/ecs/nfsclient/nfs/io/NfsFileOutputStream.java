@@ -80,7 +80,7 @@ public class NfsFileOutputStream extends OutputStream {
     private boolean _closed = false;
 
     /**
-     * The buffer size specified by the user when calling the write(byte[])
+     * The buffer size specified by the user when calling the write()
      * 8K is enough for all metadata and A send operation can be avoided to
      * the maximum extent when the user does not specify the bufferSize parameter.
      */
