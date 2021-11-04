@@ -221,7 +221,6 @@ public class NfsFileOutputStream extends OutputStream {
         _currentOffset = offset;
         _syncType = syncType;
         _buffer = new byte[(int) Math.min(_nfsFile.fsinfo().getFsInfo().wtpref, Integer.MAX_VALUE) - bufferSize];
-        //_buffer = new byte[1024 * 1020];
     }
 
     /*
@@ -280,10 +279,6 @@ public class NfsFileOutputStream extends OutputStream {
      * @see java.io.OutputStream#write(byte[], int, int)
      */
     public void write(byte[] b, int off, int len) throws IOException {
-        System.out.println("开始写入数据！");
-        System.out.println("_buffer:" + _buffer.length);
-        System.out.println("wtmax:" + _nfsFile.fsinfo().getFsInfo().wtmax);
-
         checkForClosed();
         if (b == null) {
             throw new NullPointerException();
@@ -293,16 +288,13 @@ public class NfsFileOutputStream extends OutputStream {
             return;
         }
         if (len > bytesLeftInBuffer()) {
-            System.out.println("进入if");
             int bytesToWrite = bytesLeftInBuffer();
             write(b, off, bytesToWrite);
             write(b, off + bytesToWrite, len - bytesToWrite);
         } else {
             System.arraycopy(b, off, _buffer, _bufferOffset, len);
             _bufferOffset += len;
-            System.out.println("bytesLeftInBuffer:" + bytesLeftInBuffer());
             if (bytesLeftInBuffer() == 0) {
-                System.out.println("准备进入writeBufferToFile()");
                 writeBufferToFile();
             }
         }
@@ -334,13 +326,11 @@ public class NfsFileOutputStream extends OutputStream {
      * @throws IOException
      */
     private void writeBufferToFile() throws IOException {
-        System.out.println("开始写入缓冲区数据到文件中！");
         if (_bufferOffset > 0) {
             List<ByteBuffer> payload = new ArrayList<ByteBuffer>(1);
             payload.add(ByteBuffer.wrap(_buffer, 0, _bufferOffset));
             NfsWriteResponse response = _nfsFile.write(_currentOffset, payload, _syncType);
             int bytesWritten = response.getCount();
-            System.out.println("写入的数据为：" + bytesWritten);
             _currentOffset += bytesWritten;
             _bufferOffset -= bytesWritten;
             if (0 != _bufferOffset) { // Everything was not written.
