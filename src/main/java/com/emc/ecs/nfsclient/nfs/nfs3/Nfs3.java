@@ -67,9 +67,9 @@ import com.emc.ecs.nfsclient.rpc.RpcRequest;
 import com.emc.ecs.nfsclient.rpc.RpcWrapper;
 import com.emc.ecs.nfsclient.rpc.Xdr;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.mutable.MutableBoolean;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
