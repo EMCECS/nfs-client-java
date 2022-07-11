@@ -53,4 +53,8 @@ public class RpcStatus {
         _value = value;
     }
 
+    @Override
+    public String toString() {
+        return "RpcStatus:" + _value;
+    }
 }

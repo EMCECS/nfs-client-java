@@ -115,7 +115,7 @@ public class NfsReaddirRequest extends NfsRequestBase {
      */
     public String toString() {
         return startToString("NfsReaddirRequest").append(" cookie:").append(String.valueOf(_cookie))
-                .append(" cookieverf").append(String.valueOf(_cookieverf)).toString();
+                .append(" cookieverf:").append(String.valueOf(_cookieverf)).toString();
     }
 
 }

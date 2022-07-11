@@ -102,4 +102,8 @@ public class AcceptStatus extends RpcStatus {
         super(value);
     }
 
+    @Override
+    public String toString() {
+        return "AcceptStatus:" + getValue();
+    }
 }

@@ -258,4 +258,8 @@ public class NfsStatus {
         _value = value;
     }
 
+    @Override
+    public String toString() {
+        return "NfsStatus:" + _value;
+    }
 }

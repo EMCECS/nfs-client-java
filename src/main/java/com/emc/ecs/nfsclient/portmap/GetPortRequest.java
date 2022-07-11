@@ -141,4 +141,13 @@ public class GetPortRequest extends RpcRequest {
         throw new NotImplementedException("This method should never be used during Portmapper calls.");
     }
 
+    @Override
+    public String toString() {
+        return startToString("GetPortRequest")
+                .append(" programToQuery:").append(_programToQuery)
+                .append(" programVersion:").append(_programVersion)
+                .append(" networkProtocol:").append(_networkProtocol)
+                .append(" port:").append(_port)
+                .toString();
+    }
 }
