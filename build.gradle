@@ -12,38 +12,214 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+plugins {
+    id 'idea'
+    id 'eclipse'
+    id 'java-library'
+    id 'net.saliman.cobertura' version '4.0.0'
+    id 'distribution'
+    id 'signing'
+    id 'maven-publish'
+    id 'org.ajoberstar.git-publish' version '3.0.1' // javadocs -> gh-pages // 4.x requires Java 11
+    id 'nebula.release' version '16.0.0'
+}
+
+group 'com.emc.ecs'
 description = 'NFS Client for Java - provides read/write access to data on NFS servers. The current implementation supports only NFS version 3.'
 
+// name of the github project repository
 ext.githubProjectName = 'nfs-client-java'
+// URL to github project
+ext.githubProjectUrl = "https://github.com/EMCECS/${githubProjectName}"
+// git remote scm address
+ext.githubScmUrl = "scm:git@github.com:EMCECS/${githubProjectName}.git"
+// git remote https address
+ext.githubRemoteUrl = "https://github.com/EMCECS/${githubProjectName}.git"
+// license info
 ext.licenseName = 'Apache License, Version 2.0'
 ext.licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
 
-buildscript {
-    ext.commonBuildVersion = '1.6'
-    ext.commonBuildDir = "https://raw.githubusercontent.com/EMCECS/ecs-common-build/v$commonBuildVersion"
-    apply from: "$commonBuildDir/ecs-publish.buildscript.gradle", to: buildscript
-}
+// NOTE: PGP signing key should be configured with the following properties (in ~/.gradle/gradle.properties or on CLI):
+// signingSecretKeyRingFile
+// signingKeyId
+// signingPass
+ext."signing.secretKeyRingFile" = findProperty('signing.secretKeyRingFile') ?: findProperty('signingSecretKeyRingFile')
+ext."signing.keyId" = findProperty('signing.keyId') ?: findProperty('signingKeyId')
+ext."signing.password" = findProperty('signing.password') ?: findProperty('signingPass')
 
-allprojects {
-    group = 'com.emc.ecs'
-    apply from: "$commonBuildDir/ecs-publish.gradle"
+// NOTE: Maven Central credentials should be configured with the following properties:
+// sonatypeUser
+// sonatypePass
+
+// NOTE: git repo credentials should be configured with the following properties:
+// gitUsername
+// gitPassword
+System.setProperty('org.ajoberstar.grgit.auth.username', findProperty('gitUsername') ?: '')
+System.setProperty('org.ajoberstar.grgit.auth.password', findProperty('gitPassword') ?: '')
+
+defaultTasks 'distZip'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
-    compile "org.jboss.netty:netty:3.2.8.Final",
-        "commons-lang:commons-lang:2.6",
-        "org.slf4j:slf4j-api:1.7.5"
-    testRuntime "org.slf4j:slf4j-simple:1.7.5"
-    testCompile "junit:junit:4.11"
+    implementation "io.netty:netty:3.10.6.Final"
+    implementation "commons-lang:commons-lang:2.6"
+    implementation "org.slf4j:slf4j-api:1.7.36"
+
+    testImplementation "junit:junit:4.13.2"
+
+    testRuntimeOnly "org.slf4j:slf4j-simple:1.7.36"
 }
 
-compileJava {
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
-    if (project.hasProperty('java7Lib')) {
-        options.fork = true
-        options.bootClasspath = new File(java7Lib).listFiles(
-                [accept:{d, f-> f ==~ /.*\.jar/ }] as FilenameFilter
-        ).join(File.pathSeparator)
+allprojects {
+    configurations {
+        tools // specifies tool artifacts for the distribution (placed in the tools/ directory)
     }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    withJavadocJar()
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
+    options.deprecation = true
+}
+
+jar {
+    doFirst {
+        manifest {
+            attributes 'Implementation-Version': project.version,
+                    'Class-Path': configurations.runtimeClasspath.collect { it.getName() }.join(' ')
+        }
+    }
+    into("META-INF/maven/$project.group/$project.name") {
+        from { generatePomFileForMainLibraryPublication }
+        rename "pom-default.xml", "pom.xml"
+    }
+}
+
+javadoc {
+    options.encoding = 'UTF-8'
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+distributions {
+    main {
+        contents {
+            from jar
+            into('tools') {
+                from { allprojects.configurations.tools.artifacts.files }
+            }
+            from('.') {
+                include '*.txt'
+            }
+            into('3rd-party-licenses') {
+                from '3rd-party-licenses'
+            }
+            into('lib') {
+                from configurations.runtimeClasspath
+            }
+        }
+    }
+}
+
+publishing {
+    publications {
+        mainLibrary(MavenPublication) {
+            from components.java
+            pom {
+                name = project.name
+                description = project.description
+                url = githubProjectUrl
+
+                scm {
+                    url = githubProjectUrl
+                    connection = githubScmUrl
+                    developerConnection = githubScmUrl
+                }
+
+                licenses {
+                    license {
+                        name = licenseName
+                        url = licenseUrl
+                        distribution = 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'EMCECS'
+                        name = 'Dell EMC ECS'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username findProperty('sonatypeUser')
+                password findProperty('sonatypePass')
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mainLibrary
+}
+
+ext.aggregatedDocsDir = "$buildDir/aggregatedDocs"
+task aggregateDocs {
+    doLast {
+        if (project.hasProperty('release.stage') && project.ext['release.stage'] == 'final') {
+            copy {
+                from docsDir
+                into "${aggregatedDocsDir}/latest"
+            }
+            subprojects.each { p ->
+                copy {
+                    from p.docsDir
+                    into "${aggregatedDocsDir}/latest/${p.name}"
+                }
+            }
+        }
+        copy {
+            from docsDir
+            into "${aggregatedDocsDir}/${project.version}"
+        }
+        subprojects.each { p ->
+            copy {
+                from p.docsDir
+                into "${aggregatedDocsDir}/${project.version}/${p.name}"
+            }
+        }
+    }
+}
+tasks.aggregateDocs.dependsOn javadoc
+aggregateDocs.dependsOn { subprojects.collect { it.tasks['javadoc'] } }
+
+gitPublish {
+    repoUri = githubRemoteUrl
+    branch = 'gh-pages'
+    contents {
+        from aggregatedDocsDir
+    }
+    preserve { include '**/*' }
+}
+tasks.gitPublishPush.dependsOn aggregateDocs
+
+tasks.release.dependsOn test, publish, gitPublishPush, distZip
+
+clean {
+    delete aggregatedDocsDir
 }

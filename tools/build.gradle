@@ -12,19 +12,39 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-description = 'nfsclient tools jar - provides utility commands to execute nfs client and server performance.'
-
-ext.mainClass = 'com.emc.ecs.nfsclient.nfs.io.LoadTest'
-
-buildscript {
-    apply from: "$commonBuildDir/ecs-tool.buildscript.gradle", to: buildscript
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
-apply from: "$commonBuildDir/ecs-tool.subproject.gradle"
+description = 'nfsclient tools jar - provides utility commands to execute nfs client and server performance.'
+mainClassName = 'com.emc.ecs.nfsclient.nfs.io.LoadTest'
+
+defaultTasks 'shadowJar'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
 
 dependencies {
-    compile project(':')
-    testRuntime "org.slf4j:slf4j-simple:1.7.5"
-    testCompile project(':').sourceSets.test.output,
-                "junit:junit:4.11"
+    implementation project(':')
+
+    testImplementation project(':').sourceSets.test.output
+    testImplementation "junit:junit:4.13.2"
+
+    testRuntimeOnly "org.slf4j:slf4j-simple:1.7.36"
+}
+
+shadowJar {
+    destinationDirectory = file("${buildDir}/shadow")
+    classifier ''
+    manifest {
+        attributes 'Implementation-Version': project.version
+    }
+}
+
+artifacts {
+    tools shadowJar // tells root project to include in tools/ dir of distribution
 }
