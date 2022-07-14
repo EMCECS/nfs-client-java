@@ -14,7 +14,7 @@
  */
 package com.emc.ecs.nfsclient.portmap;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import com.emc.ecs.nfsclient.rpc.CredentialNone;
 import com.emc.ecs.nfsclient.rpc.RpcRequest;

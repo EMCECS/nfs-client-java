@@ -17,8 +17,6 @@ package com.emc.ecs.nfsclient.nfs;
 import java.io.FileNotFoundException;
 import java.util.Random;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.emc.ecs.nfsclient.rpc.Credential;
 import com.emc.ecs.nfsclient.rpc.Xdr;
 

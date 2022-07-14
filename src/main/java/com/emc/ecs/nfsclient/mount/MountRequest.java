@@ -14,7 +14,7 @@
  */
 package com.emc.ecs.nfsclient.mount;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import com.emc.ecs.nfsclient.nfs.Nfs;
 import com.emc.ecs.nfsclient.rpc.Credential;

@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.emc.ecs.nfsclient.nfs.*;
 
@@ -308,6 +308,7 @@ public abstract class NfsFileBase<N extends Nfs<F>, F extends NfsFile<N, F>> imp
      * com.emc.ecs.nfsclient.nfs.io.NfsFile#followLinks(com.emc.ecs.nfsclient.
      * nfs.io.LinkTracker)
      */
+    @SuppressWarnings("unchecked")
     public F followLinks(LinkTracker<N, F> linkTracker) throws IOException {
         if (_backingFile == null) {
             F backingFile = (F) this;

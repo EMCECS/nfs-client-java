@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.emc.ecs.nfsclient.nfs.NfsReadResponse;
 import com.emc.ecs.nfsclient.nfs.nfs3.Nfs3;

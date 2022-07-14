@@ -11,5 +11,7 @@
 # express or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 #############################################################
+# NOTE: copy this file to your home directory, rename it to test.properties,
+#       and set appropriate values for your test configuration
 nfs.server=
 nfs.export=

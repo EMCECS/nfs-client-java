@@ -21,7 +21,7 @@ import com.emc.ecs.nfsclient.rpc.Xdr;
 
 import java.io.IOException;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * Used to query the port used for a service (mount or NFS), as specified by
