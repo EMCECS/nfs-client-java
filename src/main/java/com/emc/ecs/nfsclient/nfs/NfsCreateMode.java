@@ -102,4 +102,8 @@ public class NfsCreateMode {
         return _value;
     }
 
+    @Override
+    public String toString() {
+        return "NfsCreateMode:" + _value;
+    }
 }

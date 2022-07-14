@@ -78,4 +78,8 @@ public class RejectStatus extends RpcStatus {
         super(value);
     }
 
+    @Override
+    public String toString() {
+        return "RejectStatus:" + getValue();
+    }
 }

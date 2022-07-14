@@ -118,4 +118,8 @@ public class NfsType {
         return _value;
     }
 
+    @Override
+    public String toString() {
+        return "NfsType:" + _value;
+    }
 }
