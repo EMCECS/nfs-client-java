@@ -32,32 +32,23 @@ You can also use it as a Gradle dependency:
 
     compile group: 'com.emc.ecs', name: 'nfs-client', version: '1.0.3'
 
-How to build the client
+Building
 ---
 
-To build and fully test this code, you will need to set up an NFS export
-that can be used for unit testing, and add the parameters for this export
-to
-[test.properties](https://raw.githubusercontent.com/EMCECS/nfs-client-java/master/src/test/resources/test.properties).
-The test client will need read/write access to this share. If you do not
-do this, you can still build the client, but most of the JUnit tests will
-be skipped. 
+    ./gradlew distZip
 
-How to import into eclipse and IDEA
+This project uses the Gradle wrapper.  As long as you are not doing any publishing activities, you should not need any specific configuration.
+
+The minimum Java version required for building master is Java 8.
+
+Testing
 ---
   
-To import the code into eclipse or IDEA, you will need to create a `gradle.properties` file in the folder `~/.gradle`. This file will need to define the following values.
-
-    # path to Java 6 jre/lib (if installed)
-    #java6Lib=
-    java7Lib=/Library/Java/JavaVirtualMachines/jdk1.8.0_91.jdk/Contents/Home/jre/lib
-    # set these if you plan on publishing. note: you will be prompted for passwords if necessary
-    sonatypeUsername=
-    githubUsername=
-    gitUsername=
-    # Located on the signing server. KeyId can be found using gpg --list-keys
-    signingKeyId=
-    signingSecretKeyRingFile=
+To run the unit tests, you will need to set up an NFS export
+that can be used for testing, and add the parameters for this export
+to `~/test.properties` (see the [template](https://raw.githubusercontent.com/EMCECS/nfs-client-java/master/src/test/resources/test.properties.template)).
+The test client will need read/write access to this share. If you do not
+do this, you can still run the tests, but most of them will be skipped.
 
 How to use the bare client
 ---
