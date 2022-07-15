@@ -25,12 +25,14 @@ You can download the library as a Maven dependency from Maven Central Repository
     <dependency>
         <groupId>com.emc.ecs</groupId>
         <artifactId>nfs-client</artifactId>
-        <version>1.0.3</version>
+        <version>1.1.0</version>
     </dependency>
 
 You can also use it as a Gradle dependency:
 
-    compile group: 'com.emc.ecs', name: 'nfs-client', version: '1.0.3'
+    compile group: 'com.emc.ecs', name: 'nfs-client', version: '1.1.0'
+
+**_NOTE: As of 1.1.0, nfs-client requires Java 8+_**
 
 Docs
 ---
