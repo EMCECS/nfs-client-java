@@ -1,5 +1,5 @@
-/**
- * Copyright 2016-2018 Dell Inc. or its subsidiaries. All rights reserved.
+package com.emc.ecs.nfsclient.nfs.io; /**
+ * Copyright 2016 EMC Corporation. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -12,21 +12,19 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.emc.ecs.nfsclient.nfs.io;
 
 import com.emc.ecs.nfsclient.nfs.NfsCreateMode;
 import com.emc.ecs.nfsclient.nfs.NfsSetAttributes;
 import com.emc.ecs.nfsclient.nfs.NfsWriteRequest;
 import com.emc.ecs.nfsclient.nfs.NfsWriteResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The NFS equivalent of <code>java.io.FileOutputStream</code>.
@@ -82,6 +80,13 @@ public class NfsFileOutputStream extends OutputStream {
     private boolean _closed = false;
 
     /**
+     * The buffer size specified by the user when calling the write()
+     * 8K is enough for all metadata and A send operation can be avoided to
+     * the maximum extent when the user does not specify the bufferSize parameter.
+     */
+    private static final int bufferSize = 8 * 1024;
+
+    /**
      * Creates a file output stream to write to the file represented by the
      * specified <code>NfsFile</code> object, starting at
      * <code>offset = 0</code> and using <code>syncType = FILE_SYNC</code>
@@ -97,7 +102,7 @@ public class NfsFileOutputStream extends OutputStream {
      *             opened for any other reason
      */
     public NfsFileOutputStream(NfsFile<?, ?> nfsFile) throws IOException {
-        this(nfsFile, 0, NfsWriteRequest.FILE_SYNC);
+        this(nfsFile, 0, NfsWriteRequest.FILE_SYNC, bufferSize);
     }
 
     /**
@@ -124,7 +129,36 @@ public class NfsFileOutputStream extends OutputStream {
      *             opened for any other reason
      */
     public NfsFileOutputStream(NfsFile<?, ?> nfsFile, int syncType) throws IOException {
-        this(nfsFile, 0, syncType);
+        this(nfsFile, syncType, bufferSize);
+    }
+
+    /**
+     * Creates a file output stream to write to the file represented by the
+     * specified <code>NfsFile</code> object, starting at
+     * <code>offset = 0</code> and using <code>syncType</code> behavior.
+     * <p>
+     * If the file does not exist, it will first be created.
+     *
+     * @param nfsFile
+     *            The file to be opened for writing.
+     * @param syncType
+     *            One of the values below.
+     *            <ul>
+     *            <li>UNSTABLE = 0 - Best effort, no promises.</li>
+     *            <li>DATA_SYNC = 1 - Commit all data to stable storage, plus
+     *            enough metadata for retrieval, before returning.</li>
+     *            <li>FILE_SYNC = 2 - Commit all data and metadata to stable
+     *            storage before returning.</li>
+     *            </ul>
+     * @param  bufferSize
+     *            The buffer size specified by the user when calling the write(byte[])
+     * @throws IOException
+     *             If the file exists but is a directory rather than a regular
+     *             file, does not exist but cannot be created, or cannot be
+     *             opened for any other reason
+     */
+    public NfsFileOutputStream(NfsFile<?, ?> nfsFile, int syncType, int bufferSize) throws IOException {
+        this(nfsFile, 0, syncType, bufferSize);
     }
 
     /**
@@ -147,12 +181,14 @@ public class NfsFileOutputStream extends OutputStream {
      *            <li>FILE_SYNC = 2 - Commit all data and metadata to stable
      *            storage before returning.</li>
      *            </ul>
+     * @param  bufferSize
+     *            The buffer size specified by the user when calling the write(byte[])
      * @throws IOException
      *             If the file exists but is a directory rather than a regular
      *             file, does not exist but cannot be created, or cannot be
      *             opened for any other reason
      */
-    public NfsFileOutputStream(NfsFile<?, ?> nfsFile, long offset, int syncType) throws IOException {
+    public NfsFileOutputStream(NfsFile<?, ?> nfsFile, long offset, int syncType, int bufferSize) throws IOException {
         // Validate the offset.
         if (offset < 0) {
             throw new IllegalArgumentException("Cannot start writing before offset 0: " + offset);
@@ -184,7 +220,7 @@ public class NfsFileOutputStream extends OutputStream {
         _offset = offset;
         _currentOffset = offset;
         _syncType = syncType;
-        _buffer = new byte[(int) Math.min(_nfsFile.fsinfo().getFsInfo().wtpref, Integer.MAX_VALUE)];
+        _buffer = new byte[(int) Math.min(_nfsFile.fsinfo().getFsInfo().wtpref, Integer.MAX_VALUE) - bufferSize];
     }
 
     /*
