@@ -139,7 +139,7 @@ public class RecordMarkingUtil {
             fragSize = maskFragmentSize(fragSize);
 
             toReturn.putBytes(input.getBuffer(), input.getOffset(), (int) fragSize);
-            inputOff += fragSize;
+            inputOff += 4 + fragSize;
             input.setOffset(inputOff);
         }
 
