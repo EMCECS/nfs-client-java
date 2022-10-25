@@ -64,8 +64,6 @@ public class RPCRecordDecoder extends FrameDecoder {
 
         _recordLength += 4 + (int) fragSize;
 
-        System.out.println("[test]current realindex=" + _realReaderIndex + " readerIndex=" + channelBuffer.readerIndex() + " length=" + _recordLength + " fragSize=" + fragSize + " readable=" + channelBuffer.readableBytes());
-
         //check the last fragment
         if (!lastFragment) {
             channelBuffer.resetReaderIndex();
@@ -73,7 +71,6 @@ public class RPCRecordDecoder extends FrameDecoder {
             //not the last fragment, the data is put in an internally maintained cumulative buffer
             return null;
         }
-        System.out.println("[test]is last");
         byte[] rpcResponse = new byte[_recordLength];
 
         channelBuffer.readerIndex(channelBuffer.readerIndex() - _recordLength);
